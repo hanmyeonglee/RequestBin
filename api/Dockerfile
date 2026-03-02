@@ -5,8 +5,6 @@ RUN curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x8
 RUN chmod +x cs
 RUN ./cs setup -y
 
-USER api
-
 WORKDIR /api
 RUN mkdir -p /db && chmod 766 /db
 

@@ -1,12 +1,20 @@
-import scalikejdbc._
 import scalikejdbc.config._
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.ee10.webapp.WebAppContext
+import org.scalatra.servlet.ScalatraListener
 
-@main def hello(): Unit = {
+@main def main(): Unit = {
   DBs.setupAll()
-  implicit val session: DBSession = AutoSession
+  
+  val port = sys.env.getOrElse("PORT", "80").toInt
+  val server = new Server(port)
+  val context = new ServletContextHandler()
 
-  val result: Int = DB autoCommit { implicit session => 
-    sql"SELECT 1 as val".map(rs => rs.int("val")).single.apply().getOrElse(0)
-  }
-  println(s"Hello, world! Result: $result")
+  context.setContextPath("/")
+  context.addEventListener(new ScalatraListener)
+  
+  server.setHandler(context)
+  server.start()
+  server.join()
 }
