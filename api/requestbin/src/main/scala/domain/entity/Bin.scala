@@ -1,7 +1,6 @@
 package domain.entity
 
 import domain.entity.CapturedRequest
-import config.Env
 
 class Bin(val id: Int, val binId: String, val lastUsedAt: Long) {
     def canAcceptRequest(capturedRequest: CapturedRequest): Boolean = {

@@ -2,17 +2,19 @@ package interface
 import org.scalatra._
 
 import application.RequestCollector
-import config.Env
+import domain.policy.RequestPolicy
 
-class RequestBinServlet(collector: RequestCollector) extends ScalatraServlet {
+class RequestBinServlet(collector: RequestCollector, requestPolicy: RequestPolicy) extends ScalatraServlet {
+    private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
+
     before("/*") {
-        if (request.getContentLength > Env.MAX_CONTENT_LENGTH) {
+        if (request.getContentLength > requestPolicy.maxContentLength) {
             halt(413, "<h1>Payload Too Large</h1>")
         }
 
         request.getServerName.toLowerCase.split('.').toList match {
-            case Env.BASE_DOMAIN_PARTS => {}
-            case binId :: Env.BASE_DOMAIN_PARTS if binId.nonEmpty && binId.forall(_.isLetterOrDigit) => {
+            case `baseDomainParts` => {}
+            case binId :: `baseDomainParts` if binId.nonEmpty && binId.forall(_.isLetterOrDigit) => {
                 collector.collect(
                     binId,
                     CapturedRequestFactory.fromHttpRequest(request)

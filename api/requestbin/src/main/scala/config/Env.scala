@@ -6,7 +6,6 @@ object Env {
     
     // Domain Configuration
     val BASE_DOMAIN: String = sys.env("REQUESTBIN_BASE_DOMAIN")
-    val BASE_DOMAIN_PARTS: List[String] = BASE_DOMAIN.toLowerCase.split('.').toList
 
     // Resource Limits (DoS Prevention)
     // 10MB limit for request body to prevent memory exhaustion

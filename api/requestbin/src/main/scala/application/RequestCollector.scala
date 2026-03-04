@@ -1,24 +1,27 @@
 package application
 
 import domain.entity.CapturedRequest
-import config.Env
 import domain.repository.{BinRepository, CapturedRequestRepository}
+import domain.shared.Clock
+import domain.policy.BinPolicy
 
 class RequestCollector(
     transactionManager: TxManager,
     binRepository: BinRepository,
-    capturedRequestRepository: CapturedRequestRepository
+    capturedRequestRepository: CapturedRequestRepository,
+    systemClock: Clock,
+    binPolicy: BinPolicy
 ) {
     def collect(binId: String, capturedRequest: CapturedRequest): Boolean = {
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
                 case Some(bin) =>
                     if (
-                        !bin.isExpired(System.currentTimeMillis(), Env.BIN_TTL_SECONDS) &&
+                        !bin.isExpired(systemClock.now, binPolicy.ttlSeconds) &&
                         bin.canAcceptRequest(capturedRequest)
                     ) {
                         capturedRequestRepository.save(bin.id, capturedRequest)
-                        binRepository.save(bin.markLastUsedTime(System.currentTimeMillis()))
+                        binRepository.save(bin.markLastUsedTime(systemClock.now))
 
                         true
                     } else false
