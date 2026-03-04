@@ -6,8 +6,17 @@ import jakarta.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters._
 
 object CapturedRequestFactory {
-    def fromHttpRequest(implicit request: HttpServletRequest): CapturedRequest = {
-        throw new NotImplementedError("Not implemented yet")
+    def fromHttpRequest(request: HttpServletRequest): CapturedRequest = {
+        new CapturedRequest(
+            method = request.getMethod,
+            path = request.getRequestURI,
+            query = request.getQueryString,
+            headers = request.getHeaderNames.asIterator().asScala.map { name =>
+                s"$name: ${request.getHeader(name)}"
+            }.mkString("\n"),
+            body = request.getReader.lines().toArray.mkString("\n"),
+            remoteHost = request.getRemoteHost
+        )
     }
 
     def fromDBResult(rs: WrappedResultSet): CapturedRequest = {

@@ -1,7 +1,6 @@
 package domain
 
 import scala.annotation.static
-import jakarta.servlet.http.HttpServletRequest
 
 class CapturedRequest(
     val method: String,
@@ -11,4 +10,18 @@ class CapturedRequest(
     val body: String,
     val remoteHost: String
 ) {
+    def totalSize: Int = {
+        method.length + path.length + query.length + headers.length + body.length + remoteHost.length
+    }
+
+    def toMap: Map[String, String] = {
+        Map(
+            "method" -> method,
+            "path" -> path,
+            "query" -> query,
+            "headers" -> headers,
+            "body" -> body,
+            "remoteHost" -> remoteHost
+        )
+    }
 }
