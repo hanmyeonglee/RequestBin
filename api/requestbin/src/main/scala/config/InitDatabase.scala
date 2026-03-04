@@ -46,7 +46,6 @@ object InitDatabase {
                 method VARCHAR(10) NOT NULL,
                 path TEXT NOT NULL,
                 query TEXT NOT NULL,
-                fragment TEXT NOT NULL,
                 headers TEXT NOT NULL,
                 body TEXT NOT NULL,
                 remoteHost VARCHAR(255) NOT NULL,
