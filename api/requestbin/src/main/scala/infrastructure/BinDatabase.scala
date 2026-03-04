@@ -1,6 +1,5 @@
 package infrastructure
 
-import config.Env
 import scalikejdbc._
 import domain.Bin
 import application.{BinRepository, TxContext}
@@ -19,20 +18,21 @@ class BinDatabase extends BinRepository with JdbcRepository {
             .apply()
     }
 
-    def updateLastUsedAt(id: Int)(implicit ctx: TxContext): Unit = {
-        implicit val session: DBSession = dbSession
-        sql"""
-            UPDATE bin
-            SET lastUsedAt = CURRENT_TIMESTAMP
-            WHERE id = ${id}
-        """.update.apply()
-    }
-
-    def deleteAllExpiredBins(implicit ctx: TxContext): Unit = {
+    def deleteAllExpiredBins(thresholdTime: Long)(implicit ctx: TxContext): Unit = {
         implicit val session: DBSession = dbSession
         sql"""
             DELETE FROM bin
-            WHERE lastUsedAt < datetime('now', '-${Env.BIN_TTL_SECONDS} seconds')
+            WHERE lastUsedAt < ${thresholdTime}
+        """.update.apply()
+    }
+
+    def save(bin: Bin)(implicit ctx: TxContext): Unit = {
+        implicit val session: DBSession = dbSession
+        sql"""
+            INSERT INTO bin (binId, lastUsedAt)
+            VALUES (${bin.binId}, ${bin.lastUsedAt})
+            ON CONFLICT (binId)
+            DO UPDATE SET lastUsedAt = excluded.lastUsedAt
         """.update.apply()
     }
 }

@@ -27,7 +27,7 @@ object InitDatabase {
         sql"""
             CREATE TABLE IF NOT EXISTS bin (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                binId CHAR(10) NOT NULL,
+                binId CHAR(10) NOT NULL UNIQUE,
                 lastUsedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """.update.apply()

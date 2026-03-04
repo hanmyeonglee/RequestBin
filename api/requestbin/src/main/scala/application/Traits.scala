@@ -10,8 +10,8 @@ trait TxManager {
 
 trait BinRepository {
     def findByBinId(binId: String)(implicit ctx: TxContext): Option[Bin]
-    def updateLastUsedAt(id: Int)(implicit ctx: TxContext): Unit
-    def deleteAllExpiredBins(implicit ctx: TxContext): Unit
+    def deleteAllExpiredBins(thresholdTime: Long)(implicit ctx: TxContext): Unit
+    def save(bin: Bin)(implicit ctx: TxContext): Unit
 }
 
 trait CapturedRequestRepository {

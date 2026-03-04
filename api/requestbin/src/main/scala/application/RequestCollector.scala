@@ -1,6 +1,7 @@
 package application
 
 import domain.CapturedRequest
+import config.Env
 
 class RequestCollector(
     transactionManager: TxManager,
@@ -12,11 +13,11 @@ class RequestCollector(
             binRepository.findByBinId(binId) match {
                 case Some(bin) =>
                     if (
-                        !bin.isExpired(System.currentTimeMillis()) &&
+                        !bin.isExpired(System.currentTimeMillis(), Env.BIN_TTL_SECONDS) &&
                         bin.canAcceptRequest(capturedRequest)
                     ) {
                         capturedRequestRepository.save(bin.id, capturedRequest)
-                        binRepository.updateLastUsedAt(bin.id)
+                        binRepository.save(bin.markLastUsedTime(System.currentTimeMillis()))
 
                         true
                     } else false
