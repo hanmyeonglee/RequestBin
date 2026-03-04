@@ -2,11 +2,9 @@ package interface
 import org.scalatra._
 
 import application.RequestCollector
-import infrastructure.CapturedRequestFactory
 import config.Env
 
 class RequestBinServlet(collector: RequestCollector) extends ScalatraServlet {
-    
     before("/*") {
         if (request.getContentLength > Env.MAX_CONTENT_LENGTH) {
             halt(413, "<h1>Payload Too Large</h1>")

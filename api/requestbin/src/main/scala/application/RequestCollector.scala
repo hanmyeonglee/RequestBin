@@ -1,7 +1,8 @@
 package application
 
-import domain.CapturedRequest
+import domain.entity.CapturedRequest
 import config.Env
+import domain.repository.{BinRepository, CapturedRequestRepository}
 
 class RequestCollector(
     transactionManager: TxManager,

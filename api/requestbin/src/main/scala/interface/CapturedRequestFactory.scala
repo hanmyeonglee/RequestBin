@@ -1,7 +1,7 @@
-package infrastructure
+package interface
 
 import scalikejdbc.WrappedResultSet
-import domain.CapturedRequest
+import domain.entity.CapturedRequest
 import jakarta.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters._
 import org.apache.commons.io.IOUtils
@@ -20,17 +20,6 @@ object CapturedRequestFactory {
                                 }.mkString("\n"),
             body        = IOUtils.toByteArray(request.getInputStream),
             remoteHost  = request.getRemoteHost
-        )
-    }
-
-    def fromDBResult(rs: WrappedResultSet): CapturedRequest = {
-        new CapturedRequest(
-            method      = rs.string("method"),
-            path        = rs.string("path"),
-            query       = rs.string("query"),
-            headers     = rs.string("headers"),
-            body        = rs.bytes("body"),
-            remoteHost  = rs.string("remoteHost")
         )
     }
 }

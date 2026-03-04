@@ -3,7 +3,7 @@ import jakarta.servlet.ServletContext
 import interface.RequestBinServlet
 import scalikejdbc.config._
 import config.InitDatabase
-import infrastructure.{BinDatabase, CapturedRequestDatabase, JdbcTxManager}
+import infrastructure.database.{BinDatabase, CapturedRequestDatabase, JdbcTxManager}
 import application.RequestCollector
 
 class ScalatraBootstrap extends LifeCycle {

@@ -1,4 +1,4 @@
-package domain
+package domain.entity
 
 import scala.annotation.static
 

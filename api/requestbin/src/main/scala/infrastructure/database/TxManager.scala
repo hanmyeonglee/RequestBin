@@ -1,4 +1,4 @@
-package infrastructure
+package infrastructure.database
 
 import scalikejdbc._
 import application.{TxContext, TxManager}

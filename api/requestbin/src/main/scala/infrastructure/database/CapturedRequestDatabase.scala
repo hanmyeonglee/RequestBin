@@ -1,16 +1,16 @@
-package infrastructure
+package infrastructure.database
 
 import scalikejdbc._
-import domain.CapturedRequest
-import infrastructure.CapturedRequestFactory
-import application.{CapturedRequestRepository, TxContext}
+import domain.entity.CapturedRequest
+import application.TxContext
+import domain.repository.CapturedRequestRepository
 
-class CapturedRequestDatabase extends CapturedRequestRepository {
+class CapturedRequestDatabase extends CapturedRequestRepository with JdbcRepository {
     def save(
         binKey: Int,
         capturedRequest: CapturedRequest
     )(implicit ctx: TxContext): Unit = {
-        implicit val session = ctx.asInstanceOf[JdbcTxContext].session
+        implicit val session: DBSession = dbSession
         sql"""
             INSERT INTO captured_request (
                 binKey, method, path, query, headers, body, remoteHost
@@ -21,13 +21,22 @@ class CapturedRequestDatabase extends CapturedRequestRepository {
     }
 
     def read(binKey: Int, num: Int)(implicit ctx: TxContext): Seq[CapturedRequest] = {
-        implicit val session = ctx.asInstanceOf[JdbcTxContext].session
+        implicit val session: DBSession = dbSession
         sql"""
             SELECT method, path, query, headers, body, remoteHost
             FROM captured_request
             WHERE binKey = ${binKey}
             ORDER BY createdAt DESC
             LIMIT ${num}
-        """.map(CapturedRequestFactory.fromDBResult).list.apply()
+        """.map { rs =>
+            new CapturedRequest(
+                method      = rs.string("method"),
+                path        = rs.string("path"),
+                query       = rs.string("query"),
+                headers     = rs.string("headers"),
+                body        = rs.bytes("body"),
+                remoteHost  = rs.string("remoteHost")
+            )
+        }.list.apply()
     }
 }
