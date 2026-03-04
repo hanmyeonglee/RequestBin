@@ -1,4 +1,4 @@
-package application
+package domain.shared
 
 import domain.entity.{Bin, CapturedRequest}
 

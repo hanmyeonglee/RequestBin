@@ -1,7 +1,7 @@
 package infrastructure.database
 
 import scalikejdbc._
-import application.{TxContext, TxManager}
+import domain.shared.{TxContext, TxManager}
 
 final case class JdbcTxContext(session: DBSession) extends TxContext
 

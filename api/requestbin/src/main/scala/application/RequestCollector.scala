@@ -2,7 +2,7 @@ package application
 
 import domain.entity.CapturedRequest
 import domain.repository.{BinRepository, CapturedRequestRepository}
-import domain.shared.Clock
+import domain.shared.{Clock, TxManager}
 import domain.policy.BinPolicy
 
 class RequestCollector(

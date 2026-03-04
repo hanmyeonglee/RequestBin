@@ -1,6 +1,6 @@
 package domain.repository
 
-import application.TxContext
+import domain.shared.TxContext
 import domain.entity.{Bin, CapturedRequest}
 
 trait BinRepository {

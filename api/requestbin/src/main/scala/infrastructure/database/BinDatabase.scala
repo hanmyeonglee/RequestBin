@@ -2,7 +2,7 @@ package infrastructure.database
 
 import scalikejdbc._
 import domain.entity.Bin
-import application.TxContext
+import domain.shared.TxContext
 import domain.repository.BinRepository
 
 class BinDatabase extends BinRepository with JdbcRepository {

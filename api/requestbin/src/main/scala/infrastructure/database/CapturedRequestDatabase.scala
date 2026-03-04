@@ -2,7 +2,7 @@ package infrastructure.database
 
 import scalikejdbc._
 import domain.entity.CapturedRequest
-import application.TxContext
+import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
 
 class CapturedRequestDatabase extends CapturedRequestRepository with JdbcRepository {
