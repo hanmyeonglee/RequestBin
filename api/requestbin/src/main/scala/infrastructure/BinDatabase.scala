@@ -1,18 +1,18 @@
 package infrastructure
 
+import config.Env
 import scalikejdbc._
 import domain.Bin
 import application.{BinRepository, TxContext}
 
 class BinDatabase extends BinRepository with JdbcRepository {
-    val secondsToLive = sys.env("SECONDS_TO_LIVE").toInt
 
     def findByBinId(binId: String)(implicit ctx: TxContext): Option[Bin] = {
         implicit val session: DBSession = dbSession
         sql"""
             SELECT id, binId
             FROM bin
-            WHERE binId = ${binId} and lastUsedAt >= datetime('now', '-${secondsToLive} seconds')
+            WHERE binId = ${binId} and lastUsedAt >= datetime('now', '-${Env.BIN_TTL_SECONDS} seconds')
         """
             .map(rs => Bin(rs.int("id"), rs.string("binId")))
             .single
@@ -32,7 +32,7 @@ class BinDatabase extends BinRepository with JdbcRepository {
         implicit val session: DBSession = dbSession
         sql"""
             DELETE FROM bin
-            WHERE lastUsedAt < datetime('now', '-${secondsToLive} seconds')
+            WHERE lastUsedAt < datetime('now', '-${Env.BIN_TTL_SECONDS} seconds')
         """.update.apply()
     }
 }

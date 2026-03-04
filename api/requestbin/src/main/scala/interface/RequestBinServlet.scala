@@ -3,19 +3,18 @@ import org.scalatra._
 
 import application.RequestCollector
 import infrastructure.CapturedRequestFactory
+import config.Env
 
 class RequestBinServlet(collector: RequestCollector) extends ScalatraServlet {
-    private val baseDomain = sys.env("REQUESTBIN_BASE_DOMAIN").toLowerCase.split('.').toList
-    private val HARD_MEMORY_LIMIT = 10 * 1024 * 1024
-
+    
     before("/*") {
-        if (request.getContentLength > HARD_MEMORY_LIMIT) {
+        if (request.getContentLength > Env.MAX_CONTENT_LENGTH) {
             halt(413, "<h1>Payload Too Large</h1>")
         }
 
         request.getServerName.toLowerCase.split('.').toList match {
-            case `baseDomain` => {}
-            case binId :: `baseDomain` if binId.nonEmpty && binId.forall(_.isLetterOrDigit) => {
+            case Env.BASE_DOMAIN_PARTS => {}
+            case binId :: Env.BASE_DOMAIN_PARTS if binId.nonEmpty && binId.forall(_.isLetterOrDigit) => {
                 collector.collect(
                     binId,
                     CapturedRequestFactory.fromHttpRequest(request)

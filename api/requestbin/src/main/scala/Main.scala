@@ -2,22 +2,23 @@ import org.eclipse.jetty.server.{Server, HttpConfiguration, HttpConnectionFactor
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.scalatra.servlet.ScalatraListener
+import config.Env
 
 @main def main(): Unit = {
-    val port = sys.env.getOrElse("PORT", "80").toInt
-    val server = new Server(port)
+    val server = new Server()
 
     val httpConfig = new HttpConfiguration()
-    httpConfig.setRequestHeaderSize(10 * 1024)
+    httpConfig.setRequestHeaderSize(Env.MAX_HEADER_SIZE)
     
     val httpFactory = new HttpConnectionFactory(httpConfig)
     val connector = new ServerConnector(server, httpFactory)
-    connector.setPort(port)
+    connector.setPort(Env.PORT)
     server.addConnector(connector)
 
     val context = new ServletContextHandler()
     context.setContextPath("/")
-    context.setMaxFormContentSize(10 * 1024 * 1024)
+
+    context.setMaxFormContentSize(Env.MAX_CONTENT_LENGTH)
     context.addEventListener(new ScalatraListener)
     
     server.setHandler(context)
