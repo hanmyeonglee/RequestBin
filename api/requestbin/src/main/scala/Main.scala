@@ -4,14 +4,14 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.scalatra.servlet.ScalatraListener
 
 @main def main(): Unit = {
-  val port = sys.env.getOrElse("PORT", "80").toInt
-  val server = new Server(port)
-  val context = new ServletContextHandler()
+    val port = sys.env.getOrElse("PORT", "80").toInt
+    val server = new Server(port)
+    val context = new ServletContextHandler()
 
-  context.setContextPath("/")
-  context.addEventListener(new ScalatraListener)
-  
-  server.setHandler(context)
-  server.start()
-  server.join()
+    context.setContextPath("/")
+    context.addEventListener(new ScalatraListener)
+    
+    server.setHandler(context)
+    server.start()
+    server.join()
 }
