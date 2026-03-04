@@ -13,9 +13,9 @@ class CapturedRequestDatabase extends CapturedRequestRepository {
         implicit val session = ctx.asInstanceOf[JdbcTxContext].session
         sql"""
             INSERT INTO captured_request (
-                binKey, method, path, query, headers, body, remoteHost, createdAt
+                binKey, method, path, query, headers, body, remoteHost
             ) VALUES (
-                ${binKey}, ${capturedRequest.method}, ${capturedRequest.path}, ${capturedRequest.query}, ${capturedRequest.headers}, ${capturedRequest.body}, ${capturedRequest.remoteHost}, CURRENT_TIMESTAMP
+                ${binKey}, ${capturedRequest.method}, ${capturedRequest.path}, ${capturedRequest.query}, ${capturedRequest.headers}, ${capturedRequest.body}, ${capturedRequest.remoteHost}
             )
         """.update.apply()
     }

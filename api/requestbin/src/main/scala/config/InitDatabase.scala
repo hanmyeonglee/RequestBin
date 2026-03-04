@@ -28,7 +28,7 @@ object InitDatabase {
             CREATE TABLE IF NOT EXISTS bin (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 binId CHAR(10) NOT NULL,
-                lastUsedAt TIMESTAMP NOT NULL
+                lastUsedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """.update.apply()
         sql"""
@@ -47,9 +47,9 @@ object InitDatabase {
                 path TEXT NOT NULL,
                 query TEXT NOT NULL,
                 headers TEXT NOT NULL,
-                body TEXT NOT NULL,
+                body BLOB NOT NULL,
                 remoteHost VARCHAR(255) NOT NULL,
-                createdAt TIMESTAMP NOT NULL,
+                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (binKey) REFERENCES bin(id) ON DELETE CASCADE
             )
         """.update.apply()

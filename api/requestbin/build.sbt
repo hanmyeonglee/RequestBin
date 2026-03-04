@@ -28,6 +28,7 @@ lazy val root = project
       "org.scalikejdbc" %% "scalikejdbc-config" % jdbcVersion,
       "org.xerial" % "sqlite-jdbc" % "3.51.2.0",
       "com.h2database" % "h2" % "2.2.+",
-      "ch.qos.logback" % "logback-classic" % "1.5.+"
+      "ch.qos.logback" % "logback-classic" % "1.5.+",
+      "commons-io" % "commons-io" % "2.21.0"
     )
   )
