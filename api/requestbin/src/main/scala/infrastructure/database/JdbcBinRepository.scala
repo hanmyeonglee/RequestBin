@@ -5,7 +5,7 @@ import domain.entity.Bin
 import domain.shared.TxContext
 import domain.repository.BinRepository
 
-class BinDatabase extends BinRepository with JdbcRepository {
+class JdbcBinRepository extends BinRepository with JdbcRepository {
 
     def findByBinId(binId: String)(implicit ctx: TxContext): Option[Bin] = {
         implicit val session: DBSession = dbSession

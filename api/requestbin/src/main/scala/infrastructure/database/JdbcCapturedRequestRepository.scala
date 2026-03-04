@@ -5,7 +5,7 @@ import domain.entity.CapturedRequest
 import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
 
-class CapturedRequestDatabase extends CapturedRequestRepository with JdbcRepository {
+class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcRepository {
     def save(
         binKey: Int,
         capturedRequest: CapturedRequest
