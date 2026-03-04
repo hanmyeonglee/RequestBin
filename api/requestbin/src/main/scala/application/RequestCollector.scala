@@ -11,12 +11,16 @@ class RequestCollector(
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
                 case Some(bin) =>
-                    if (bin.canAcceptRequest(capturedRequest)) {
+                    if (
+                        !bin.isExpired(System.currentTimeMillis()) &&
+                        bin.canAcceptRequest(capturedRequest)
+                    ) {
                         capturedRequestRepository.save(bin.id, capturedRequest)
                         binRepository.updateLastUsedAt(bin.id)
 
                         true
                     } else false
+                
                 case None => false
             }
         }
