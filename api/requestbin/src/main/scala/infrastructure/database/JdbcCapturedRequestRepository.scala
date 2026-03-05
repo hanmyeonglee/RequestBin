@@ -17,12 +17,13 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
         implicit val session: DBSession = dbSession
         sql"""
             INSERT INTO captured_request (
-                binKey, method, path, query, headers, body, remoteHost
+                binKey, method, path, query, headers, body, remoteHost, createdAt
             ) VALUES (
                 ${bin.binId}, ${capturedRequest.method}, ${capturedRequest.path},
                 ${capturedRequest.query.params.asJson.noSpaces},
                 ${capturedRequest.headers.entries.asJson.noSpaces},
-                ${capturedRequest.body.bytes.toArray}, ${capturedRequest.remoteHost}
+                ${capturedRequest.body.bytes.toArray}, ${capturedRequest.remoteHost},
+                ${capturedRequest.createdAt}
             )
         """.update.apply()
     }
@@ -30,7 +31,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
     def read(bin: Bin, num: Int)(implicit ctx: TxContext): Seq[CapturedRequest] = {
         implicit val session: DBSession = dbSession
         sql"""
-            SELECT method, path, query, headers, body, remoteHost
+            SELECT method, path, query, headers, body, remoteHost, createdAt
             FROM captured_request
             WHERE binKey = ${bin.binId}
             ORDER BY createdAt DESC
@@ -42,7 +43,8 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
                 query      = Query(decode[Map[String, List[String]]](rs.string("query")).getOrElse(Map.empty)),
                 headers    = Headers(decode[Map[String, String]](rs.string("headers")).getOrElse(Map.empty)),
                 body       = Body(ArraySeq.from(rs.bytes("body"))),
-                remoteHost = rs.string("remoteHost")
+                remoteHost = rs.string("remoteHost"),
+                createdAt  = rs.long("createdAt")
             )
         }.list.apply()
     }

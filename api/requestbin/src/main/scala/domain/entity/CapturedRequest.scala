@@ -6,7 +6,8 @@ final case class CapturedRequest(
     val query: Query,
     val headers: Headers,
     val body: Body,
-    val remoteHost: String
+    val remoteHost: String,
+    val createdAt: Long
 ) {
     def totalSize: Int =
         method.length + path.length + query.size + headers.size + body.size + remoteHost.length

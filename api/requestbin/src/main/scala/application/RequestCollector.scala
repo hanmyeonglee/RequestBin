@@ -20,7 +20,7 @@ class RequestCollector(
                         !bin.isExpired(systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds) &&
                         bin.canAcceptRequest(capturedRequest)
                     ) {
-                        capturedRequestRepository.save(bin, capturedRequest)
+                        capturedRequestRepository.save(bin, capturedRequest.copy(createdAt = systemClock.currentUnixTimeSeconds))
                         binRepository.save(
                             bin.markLastUsedUnixTimeSeconds(
                                 systemClock.currentUnixTimeSeconds

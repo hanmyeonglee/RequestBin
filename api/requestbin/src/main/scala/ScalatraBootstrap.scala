@@ -5,7 +5,7 @@ import config.Env
 import scalikejdbc.config._
 import config.InitDatabase
 import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository, JdbcTxManager}
-import application.{BinCreator, BinCleaner, RequestCollector}
+import application.{BinCreator, BinCleaner, RequestCollector, RequestReader}
 import infrastructure.shared.SystemClock
 import domain.policy.{BinPolicy, RequestPolicy, SchedulerPolicy}
 import infrastructure.generator.BinIdGenerator
@@ -29,7 +29,8 @@ class ScalatraBootstrap extends LifeCycle {
                 binPolicy
             ),
             requestPolicy,
-            new BinCreator(txManager, binDatabase, systemClock, binIdGenerator)
+            new BinCreator(txManager, binDatabase, systemClock, binIdGenerator),
+            new RequestReader(txManager, binDatabase, capturedRequestDatabase)
         ), "/*")
 
         DBs.setupAll()

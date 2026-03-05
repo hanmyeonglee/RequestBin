@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets
 import org.scalatra.util.MapQueryString
 
 object CapturedRequestFactory {
+    // createdAt is set by the application layer (RequestCollector) at persist time
     def fromHttpRequest(request: HttpServletRequest): CapturedRequest =
         CapturedRequest(
             method     = request.getMethod,
@@ -21,6 +22,7 @@ object CapturedRequestFactory {
                                     .toMap
                         ),
             body       = Body(ArraySeq.from(request.getInputStream.readAllBytes())),
-            remoteHost = request.getRemoteHost
+            remoteHost = request.getRemoteHost,
+            createdAt  = 0L
         )
 }
