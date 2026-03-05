@@ -19,6 +19,9 @@ lazy val root = project
 
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "1.0.0" % Test,
+      "io.circe" %% "circe-core" % "0.14.10",
+      "io.circe" %% "circe-generic" % "0.14.10",
+      "io.circe" %% "circe-parser" % "0.14.10",
       "org.scalatra" %% "scalatra-jakarta" % "3.1.2",
       "org.eclipse.jetty" % "jetty-server" % jettyVersion,
       "org.eclipse.jetty.ee10" % "jetty-ee10-servlet" % jettyVersion,

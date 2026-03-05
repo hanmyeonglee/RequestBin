@@ -1,10 +1,15 @@
 package interface
 import org.scalatra._
+import io.circe.Json
 
-import application.RequestCollector
+import application.{BinCreator, RequestCollector}
 import domain.policy.RequestPolicy
 
-class RequestBinServlet(collector: RequestCollector, requestPolicy: RequestPolicy) extends ScalatraServlet {
+class RequestBinServlet(
+    collector: RequestCollector,
+    requestPolicy: RequestPolicy,
+    binCreator: BinCreator
+) extends ScalatraServlet {
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
 
     before("/*") {
@@ -27,13 +32,9 @@ class RequestBinServlet(collector: RequestCollector, requestPolicy: RequestPolic
         }
     }
 
-    get("/auth") {
-    }
-
     get("/bin/create") {
-    }
-
-    get("/bin/delete/:binId") {
+        contentType = "application/json"
+        Json.obj("binId" -> Json.fromString(binCreator.create())).noSpaces
     }
 
     get("/bin/read/:binId/:numToRead") {
