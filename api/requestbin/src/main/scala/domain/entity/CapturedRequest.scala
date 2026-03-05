@@ -1,13 +1,14 @@
 package domain.entity
 
 import scala.annotation.static
+import scala.collection.immutable.ArraySeq
 
-class CapturedRequest(
+final case class CapturedRequest(
     val method: String,
     val path: String,
     val query: String,
     val headers: String,
-    val body: Array[Byte],
+    val body: ArraySeq[Byte],
     val remoteHost: String
 ) {
     def totalSize: Int = {

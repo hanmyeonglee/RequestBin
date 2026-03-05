@@ -17,4 +17,8 @@ object Env {
     // Bin Configuration
     // Time-to-live for bins in seconds
     val BIN_TTL_SECONDS: Int = sys.env.getOrElse("SECONDS_TO_LIVE", (15 * 60).toString).toInt
+
+    // Cleanup Scheduler Configuration
+    val CLEANUP_TIME_HOUR: Int = sys.env.getOrElse("CLEANUP_TIME_HOUR", "3").toInt
+    val CLEANUP_INTERVAL_SECONDS: Int = sys.env.getOrElse("CLEANUP_INTERVAL_SECONDS", (5 * 60).toString).toInt
 }

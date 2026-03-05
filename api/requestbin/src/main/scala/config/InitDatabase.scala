@@ -27,8 +27,8 @@ object InitDatabase {
         sql"""
             CREATE TABLE IF NOT EXISTS bin (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                binId CHAR(10) NOT NULL UNIQUE,
-                lastUsedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                binId TEXT NOT NULL UNIQUE,
+                lastUsedAt INTEGER NOT NULL
             )
         """.update.apply()
         sql"""
@@ -43,13 +43,13 @@ object InitDatabase {
             CREATE TABLE IF NOT EXISTS captured_request (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 binKey INTEGER NOT NULL,
-                method VARCHAR(10) NOT NULL,
+                method TEXT NOT NULL,
                 path TEXT NOT NULL,
                 query TEXT NOT NULL,
                 headers TEXT NOT NULL,
                 body BLOB NOT NULL,
-                remoteHost VARCHAR(255) NOT NULL,
-                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                remoteHost TEXT NOT NULL,
+                createdAt INTEGER NOT NULL,
                 FOREIGN KEY (binKey) REFERENCES bin(id) ON DELETE CASCADE
             )
         """.update.apply()

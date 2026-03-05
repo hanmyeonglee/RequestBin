@@ -1,13 +1,13 @@
 import org.scalatra.LifeCycle
 import jakarta.servlet.ServletContext
-import interface.RequestBinServlet
+import interface.{RequestBinServlet, BinCleanupScheduler}
 import config.Env
 import scalikejdbc.config._
 import config.InitDatabase
 import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository, JdbcTxManager}
-import application.RequestCollector
+import application.{RequestCollector, BinCleaner}
 import infrastructure.shared.SystemClock
-import domain.policy.{BinPolicy, RequestPolicy}
+import domain.policy.{BinPolicy, RequestPolicy, SchedulerPolicy}
 
 class ScalatraBootstrap extends LifeCycle {
     override def init(context: ServletContext): Unit = {
@@ -31,5 +31,10 @@ class ScalatraBootstrap extends LifeCycle {
 
         DBs.setupAll()
         InitDatabase.init()
+
+        val cleanUpPolicy = new SchedulerPolicy(Env.BIN_TTL_SECONDS, Env.CLEANUP_TIME_HOUR, Env.CLEANUP_INTERVAL_SECONDS)
+        val binCleaner = new BinCleaner(txManager, binDatabase, systemClock, cleanUpPolicy)
+        val cleanupScheduler = new BinCleanupScheduler(binCleaner, cleanUpPolicy)
+        cleanupScheduler.start()
     }
 }

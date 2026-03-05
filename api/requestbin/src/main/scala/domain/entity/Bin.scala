@@ -2,16 +2,16 @@ package domain.entity
 
 import domain.entity.CapturedRequest
 
-class Bin(val id: Int, val binId: String, val lastUsedAt: Long) {
+final case class Bin(val id: Option[Int], val binId: String, val lastUsedAtUnixTimeSeconds: Long) {
     def canAcceptRequest(capturedRequest: CapturedRequest): Boolean = {
         true
     }
 
-    def isExpired(currentTime: Long, ttlSeconds: Long): Boolean = {
-        currentTime - lastUsedAt > ttlSeconds * 1000
+    def isExpired(currentUnixTimeSeconds: Long, ttlSeconds: Long): Boolean = {
+        currentUnixTimeSeconds - lastUsedAtUnixTimeSeconds > ttlSeconds
     }
 
-    def markLastUsedTime(currentTime: Long): Bin = {
-        new Bin(id, binId, currentTime)
+    def markLastUsedUnixTimeSeconds(currentUnixTimeSeconds: Long): Bin = {
+        Bin(id, binId, currentUnixTimeSeconds)
     }
 }

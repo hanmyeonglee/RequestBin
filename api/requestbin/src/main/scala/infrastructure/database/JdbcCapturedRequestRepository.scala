@@ -4,6 +4,7 @@ import scalikejdbc._
 import domain.entity.CapturedRequest
 import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
+import scala.collection.immutable.ArraySeq
 
 class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcRepository {
     def save(
@@ -15,7 +16,9 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
             INSERT INTO captured_request (
                 binKey, method, path, query, headers, body, remoteHost
             ) VALUES (
-                ${binKey}, ${capturedRequest.method}, ${capturedRequest.path}, ${capturedRequest.query}, ${capturedRequest.headers}, ${capturedRequest.body}, ${capturedRequest.remoteHost}
+                ${binKey}, ${capturedRequest.method}, ${capturedRequest.path},
+                ${capturedRequest.query}, ${capturedRequest.headers},
+                ${capturedRequest.body.toArray}, ${capturedRequest.remoteHost}
             )
         """.update.apply()
     }
@@ -34,7 +37,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
                 path        = rs.string("path"),
                 query       = rs.string("query"),
                 headers     = rs.string("headers"),
-                body        = rs.bytes("body"),
+                body        = ArraySeq.from(rs.bytes("body")),
                 remoteHost  = rs.string("remoteHost")
             )
         }.list.apply()

@@ -1,5 +1,5 @@
 package domain.shared
 
 trait Clock {
-    def now: Long
+    def currentUnixTimeSeconds: Long
 }

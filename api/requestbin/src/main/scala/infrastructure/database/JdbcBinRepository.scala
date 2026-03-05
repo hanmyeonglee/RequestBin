@@ -14,16 +14,16 @@ class JdbcBinRepository extends BinRepository with JdbcRepository {
             FROM bin
             WHERE binId = ${binId}
         """
-            .map(rs => Bin(rs.int("id"), rs.string("binId"), rs.long("lastUsedAt")))
+            .map(rs => Bin(Some(rs.int("id")), rs.string("binId"), rs.long("lastUsedAt")))
             .single
             .apply()
     }
 
-    def deleteAllExpiredBins(thresholdTime: Long)(implicit ctx: TxContext): Unit = {
+    def deleteAllExpiredBins(thresholdSeconds: Long)(implicit ctx: TxContext): Unit = {
         implicit val session: DBSession = dbSession
         sql"""
             DELETE FROM bin
-            WHERE lastUsedAt < ${thresholdTime}
+            WHERE lastUsedAt < ${thresholdSeconds}
         """.update.apply()
     }
 
@@ -31,7 +31,7 @@ class JdbcBinRepository extends BinRepository with JdbcRepository {
         implicit val session: DBSession = dbSession
         sql"""
             INSERT INTO bin (binId, lastUsedAt)
-            VALUES (${bin.binId}, ${bin.lastUsedAt})
+            VALUES (${bin.binId}, ${bin.lastUsedAtUnixTimeSeconds})
             ON CONFLICT (binId)
             DO UPDATE SET lastUsedAt = excluded.lastUsedAt
         """.update.apply()

@@ -4,7 +4,7 @@ import scalikejdbc.WrappedResultSet
 import domain.entity.CapturedRequest
 import jakarta.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters._
-import org.apache.commons.io.IOUtils
+import scala.collection.immutable.ArraySeq
 
 object CapturedRequestFactory {
     def fromHttpRequest(request: HttpServletRequest): CapturedRequest = {
@@ -18,7 +18,7 @@ object CapturedRequestFactory {
                                 .map { name =>
                                     s"$name: ${request.getHeader(name)}"
                                 }.mkString("\n"),
-            body        = IOUtils.toByteArray(request.getInputStream),
+            body        = ArraySeq.from(request.getInputStream.readAllBytes()),
             remoteHost  = request.getRemoteHost
         )
     }

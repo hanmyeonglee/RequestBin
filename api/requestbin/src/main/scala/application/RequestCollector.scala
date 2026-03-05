@@ -1,6 +1,6 @@
 package application
 
-import domain.entity.CapturedRequest
+import domain.entity.{Bin, CapturedRequest}
 import domain.repository.{BinRepository, CapturedRequestRepository}
 import domain.shared.{Clock, TxManager}
 import domain.policy.BinPolicy
@@ -15,18 +15,22 @@ class RequestCollector(
     def collect(binId: String, capturedRequest: CapturedRequest): Boolean = {
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
-                case Some(bin) =>
+                case Some(bin @ Bin(Some(id), _, _)) =>
                     if (
-                        !bin.isExpired(systemClock.now, binPolicy.ttlSeconds) &&
+                        !bin.isExpired(systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds) &&
                         bin.canAcceptRequest(capturedRequest)
                     ) {
-                        capturedRequestRepository.save(bin.id, capturedRequest)
-                        binRepository.save(bin.markLastUsedTime(systemClock.now))
+                        capturedRequestRepository.save(id, capturedRequest)
+                        binRepository.save(
+                            bin.markLastUsedUnixTimeSeconds(
+                                systemClock.currentUnixTimeSeconds
+                            )
+                        )
 
                         true
                     } else false
                 
-                case None => false
+                case _ => false
             }
         }
     }
