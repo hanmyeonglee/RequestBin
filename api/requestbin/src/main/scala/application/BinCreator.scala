@@ -12,7 +12,7 @@ class BinCreator(
 ) {
     def create(): String = {
         val binId = binIdGenerator.generate
-        val bin = Bin(None, binId, clock.currentUnixTimeSeconds)
+        val bin = Bin(binId, clock.currentUnixTimeSeconds)
         txManager.withTx { implicit ctx => binRepository.save(bin) }
         binId
     }

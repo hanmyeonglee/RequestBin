@@ -10,11 +10,11 @@ class JdbcBinRepository extends BinRepository with JdbcRepository {
     def findByBinId(binId: String)(implicit ctx: TxContext): Option[Bin] = {
         implicit val session: DBSession = dbSession
         sql"""
-            SELECT id, binId, lastUsedAt
+            SELECT binId, lastUsedAt
             FROM bin
             WHERE binId = ${binId}
         """
-            .map(rs => Bin(Some(rs.int("id")), rs.string("binId"), rs.long("lastUsedAt")))
+            .map(rs => Bin(rs.string("binId"), rs.long("lastUsedAt")))
             .single
             .apply()
     }

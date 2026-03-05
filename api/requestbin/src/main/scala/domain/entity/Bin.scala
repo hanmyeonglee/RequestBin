@@ -2,7 +2,7 @@ package domain.entity
 
 import domain.entity.CapturedRequest
 
-final case class Bin(val id: Option[Int], val binId: String, val lastUsedAtUnixTimeSeconds: Long) {
+final case class Bin(val binId: String, val lastUsedAtUnixTimeSeconds: Long) {
     def canAcceptRequest(capturedRequest: CapturedRequest): Boolean = {
         true
     }
@@ -12,6 +12,6 @@ final case class Bin(val id: Option[Int], val binId: String, val lastUsedAtUnixT
     }
 
     def markLastUsedUnixTimeSeconds(currentUnixTimeSeconds: Long): Bin = {
-        Bin(id, binId, currentUnixTimeSeconds)
+        Bin(binId, currentUnixTimeSeconds)
     }
 }
