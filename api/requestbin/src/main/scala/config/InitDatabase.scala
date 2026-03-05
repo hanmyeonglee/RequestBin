@@ -9,6 +9,7 @@ object InitDatabase {
     private val initialized = new AtomicBoolean(false)
 
     private val migrations: Seq[Migration] = Seq(
+        pragmaSetting,
         createBinTable,
         createCapturedRequestTable
     )
@@ -19,6 +20,11 @@ object InitDatabase {
                 migrations.foreach(migration => migration(session))
             }
         }
+    }
+
+    private def pragmaSetting(session: DBSession): Unit = {
+        implicit val implicitSession: DBSession = session
+        sql"PRAGMA foreign_keys = ON".update.apply()
     }
 
     private def createBinTable(session: DBSession): Unit = {
