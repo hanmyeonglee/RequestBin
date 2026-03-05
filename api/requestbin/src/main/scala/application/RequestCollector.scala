@@ -16,10 +16,7 @@ class RequestCollector(
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
                 case Some(bin) =>
-                    if (
-                        !bin.isExpired(systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds) &&
-                        bin.canAcceptRequest(capturedRequest)
-                    ) {
+                    if (bin.canAcceptRequest(capturedRequest, systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds)) {
                         capturedRequestRepository.save(bin, capturedRequest.copy(createdAt = systemClock.currentUnixTimeSeconds))
                         binRepository.save(
                             bin.markLastUsedUnixTimeSeconds(
