@@ -14,7 +14,7 @@ class RequestBinServlet(collector: RequestCollector, requestPolicy: RequestPolic
 
         request.getServerName.toLowerCase.split('.').toList match {
             case `baseDomainParts` => {}
-            case binId :: `baseDomainParts` if binId.nonEmpty && binId.forall(_.isLetterOrDigit) => {
+            case binId :: `baseDomainParts` if binId.nonEmpty => {
                 collector.collect(
                     binId,
                     CapturedRequestFactory.fromHttpRequest(request)
