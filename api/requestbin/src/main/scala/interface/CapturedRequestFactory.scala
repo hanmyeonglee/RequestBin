@@ -30,7 +30,7 @@ object CapturedRequestFactory {
                                         .map(name => (name, request.getHeader(name)))
                                         .toMap
                             ),
-                body       = Body(ArraySeq.from(request.getInputStream.readAllBytes())),
+                body       = Body(ArraySeq.from(bodyInputStream.readAllBytes())),
                 remoteHost = request.getRemoteHost,
                 createdAt  = 0L
             ))
