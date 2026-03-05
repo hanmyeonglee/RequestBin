@@ -5,10 +5,11 @@ import domain.entity.CapturedRequest
 import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
 import scala.collection.immutable.ArraySeq
+import domain.entity.Bin
 
 class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcRepository {
     def save(
-        binKey: Int,
+        bin: Bin,
         capturedRequest: CapturedRequest
     )(implicit ctx: TxContext): Unit = {
         implicit val session: DBSession = dbSession
@@ -16,19 +17,19 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
             INSERT INTO captured_request (
                 binKey, method, path, query, headers, body, remoteHost
             ) VALUES (
-                ${binKey}, ${capturedRequest.method}, ${capturedRequest.path},
+                ${bin.binId}, ${capturedRequest.method}, ${capturedRequest.path},
                 ${capturedRequest.query}, ${capturedRequest.headers},
                 ${capturedRequest.body.toArray}, ${capturedRequest.remoteHost}
             )
         """.update.apply()
     }
 
-    def read(binKey: Int, num: Int)(implicit ctx: TxContext): Seq[CapturedRequest] = {
+    def read(bin: Bin, num: Int)(implicit ctx: TxContext): Seq[CapturedRequest] = {
         implicit val session: DBSession = dbSession
         sql"""
             SELECT method, path, query, headers, body, remoteHost
             FROM captured_request
-            WHERE binKey = ${binKey}
+            WHERE binKey = ${bin.binId}
             ORDER BY createdAt DESC
             LIMIT ${num}
         """.map { rs =>

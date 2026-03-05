@@ -15,12 +15,12 @@ class RequestCollector(
     def collect(binId: String, capturedRequest: CapturedRequest): Boolean = {
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
-                case Some(bin @ Bin(Some(id), _, _)) =>
+                case Some(bin) =>
                     if (
                         !bin.isExpired(systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds) &&
                         bin.canAcceptRequest(capturedRequest)
                     ) {
-                        capturedRequestRepository.save(id, capturedRequest)
+                        capturedRequestRepository.save(bin, capturedRequest)
                         binRepository.save(
                             bin.markLastUsedUnixTimeSeconds(
                                 systemClock.currentUnixTimeSeconds
