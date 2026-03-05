@@ -8,6 +8,7 @@ import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository
 import application.{BinCreator, BinCleaner, RequestCollector}
 import infrastructure.shared.SystemClock
 import domain.policy.{BinPolicy, RequestPolicy, SchedulerPolicy}
+import infrastructure.generator.BinIdGenerator
 
 class ScalatraBootstrap extends LifeCycle {
     override def init(context: ServletContext): Unit = {
@@ -17,6 +18,7 @@ class ScalatraBootstrap extends LifeCycle {
         val systemClock = new SystemClock
         val binPolicy = new BinPolicy(Env.BIN_TTL_SECONDS)
         val requestPolicy = new RequestPolicy(Env.MAX_CONTENT_LENGTH, Env.BASE_DOMAIN)
+        val binIdGenerator = new BinIdGenerator
 
         context.mount(new RequestBinServlet(
             new RequestCollector(
@@ -27,7 +29,7 @@ class ScalatraBootstrap extends LifeCycle {
                 binPolicy
             ),
             requestPolicy,
-            new BinCreator(txManager, binDatabase, systemClock)
+            new BinCreator(txManager, binDatabase, systemClock, binIdGenerator)
         ), "/*")
 
         DBs.setupAll()

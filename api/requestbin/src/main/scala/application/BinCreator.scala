@@ -2,18 +2,16 @@ package application
 
 import domain.entity.Bin
 import domain.repository.BinRepository
-import domain.shared.{Clock, TxManager}
+import domain.shared.{Clock, TxManager, Generator}
 
-class BinCreator(txManager: TxManager, binRepository: BinRepository, clock: Clock) {
-    private def generateBinId(): String =
-        LazyList
-            .continually(scala.util.Random.nextInt(26))
-            .map(i => ('a' + i).toChar)
-            .take(10)
-            .mkString
-
+class BinCreator(
+    txManager: TxManager,
+    binRepository: BinRepository,
+    clock: Clock,
+    binIdGenerator: Generator[String]
+) {
     def create(): String = {
-        val binId = generateBinId()
+        val binId = binIdGenerator.generate
         val bin = Bin(None, binId, clock.currentUnixTimeSeconds)
         txManager.withTx { implicit ctx => binRepository.save(bin) }
         binId

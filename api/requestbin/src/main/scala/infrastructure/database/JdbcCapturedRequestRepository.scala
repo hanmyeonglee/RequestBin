@@ -1,11 +1,13 @@
 package infrastructure.database
 
 import scalikejdbc._
-import domain.entity.CapturedRequest
+import io.circe.syntax._
+import io.circe.generic.auto._
+import io.circe.parser.decode
+import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}
 import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
 import scala.collection.immutable.ArraySeq
-import domain.entity.Bin
 
 class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcRepository {
     def save(
@@ -18,8 +20,9 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
                 binKey, method, path, query, headers, body, remoteHost
             ) VALUES (
                 ${bin.binId}, ${capturedRequest.method}, ${capturedRequest.path},
-                ${capturedRequest.query}, ${capturedRequest.headers},
-                ${capturedRequest.body.toArray}, ${capturedRequest.remoteHost}
+                ${capturedRequest.query.params.asJson.noSpaces},
+                ${capturedRequest.headers.entries.asJson.noSpaces},
+                ${capturedRequest.body.bytes.toArray}, ${capturedRequest.remoteHost}
             )
         """.update.apply()
     }
@@ -33,13 +36,13 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
             ORDER BY createdAt DESC
             LIMIT ${num}
         """.map { rs =>
-            new CapturedRequest(
-                method      = rs.string("method"),
-                path        = rs.string("path"),
-                query       = rs.string("query"),
-                headers     = rs.string("headers"),
-                body        = ArraySeq.from(rs.bytes("body")),
-                remoteHost  = rs.string("remoteHost")
+            CapturedRequest(
+                method     = rs.string("method"),
+                path       = rs.string("path"),
+                query      = Query(decode[Map[String, List[String]]](rs.string("query")).getOrElse(Map.empty)),
+                headers    = Headers(decode[Map[String, String]](rs.string("headers")).getOrElse(Map.empty)),
+                body       = Body(ArraySeq.from(rs.bytes("body"))),
+                remoteHost = rs.string("remoteHost")
             )
         }.list.apply()
     }
