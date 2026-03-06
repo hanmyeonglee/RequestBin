@@ -36,7 +36,7 @@ class ScalatraBootstrap extends LifeCycle {
         DBs.setupAll()
         InitDatabase.init()
 
-        val cleanUpPolicy = new SchedulerPolicy(Env.BIN_TTL_SECONDS, Env.CLEANUP_TIME_HOUR, Env.CLEANUP_INTERVAL_SECONDS)
+        val cleanUpPolicy = new SchedulerPolicy(Env.BIN_TTL_SECONDS, Env.CLEANUP_INTERVAL_SECONDS, Env.CLEANUP_TIME_HOUR)
         val binCleaner = new BinCleaner(txManager, binDatabase, systemClock, cleanUpPolicy)
         val cleanupScheduler = new BinCleanupScheduler(binCleaner, cleanUpPolicy)
         cleanupScheduler.start()
