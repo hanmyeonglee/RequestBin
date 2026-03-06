@@ -12,14 +12,9 @@ import org.apache.commons.io.input.BoundedInputStream
 object CapturedRequestFactory {
     // createdAt is set by the application layer (RequestCollector) at persist time
     def fromHttpRequest(request: HttpServletRequest, limit: Long): Option[CapturedRequest] = {
-        val bodyInputStream = 
-            BoundedInputStream.builder()
-                .setMaxCount(limit)
-                .setInputStream(request.getInputStream)
-                .setPropagateClose(true)
-                .get()
+        val bodyBytes = request.getInputStream.readNBytes(limit.toInt + 1)
 
-        if (request.getInputStream().read() == -1) {
+        if (bodyBytes.length <= limit) {
             Some(CapturedRequest(
                 method     = request.getMethod,
                 path       = request.getRequestURI,
@@ -30,7 +25,7 @@ object CapturedRequestFactory {
                                         .map(name => (name, request.getHeader(name)))
                                         .toMap
                             ),
-                body       = Body(ArraySeq.from(bodyInputStream.readAllBytes())),
+                body       = Body(ArraySeq.from(bodyBytes)),
                 remoteHost = request.getRemoteHost,
                 createdAt  = 0L
             ))
