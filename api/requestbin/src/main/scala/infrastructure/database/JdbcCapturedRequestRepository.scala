@@ -17,7 +17,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
         implicit val session: DBSession = dbSession
         sql"""
             INSERT INTO captured_request (
-                binKey, method, path, query, headers, body, remoteHost, createdAt
+                binId, method, path, query, headers, body, remoteHost, createdAt
             ) VALUES (
                 ${bin.binId}, ${capturedRequest.method}, ${capturedRequest.path},
                 ${capturedRequest.query.params.asJson.noSpaces},
@@ -33,7 +33,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
         sql"""
             SELECT method, path, query, headers, body, remoteHost, createdAt
             FROM captured_request
-            WHERE binKey = ${bin.binId}
+            WHERE binId = ${bin.binId}
             ORDER BY createdAt DESC
             LIMIT ${num}
         """.map { rs =>

@@ -48,7 +48,7 @@ object InitDatabase {
         sql"""
             CREATE TABLE IF NOT EXISTS captured_request (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                binKey INTEGER NOT NULL,
+                binId INTEGER NOT NULL,
                 method TEXT NOT NULL,
                 path TEXT NOT NULL,
                 query TEXT NOT NULL,
@@ -56,12 +56,12 @@ object InitDatabase {
                 body BLOB NOT NULL,
                 remoteHost TEXT NOT NULL,
                 createdAt INTEGER NOT NULL,
-                FOREIGN KEY (binKey) REFERENCES bin(id) ON DELETE CASCADE
+                FOREIGN KEY (binId) REFERENCES bin(binId) ON DELETE CASCADE
             )
         """.update.apply()
         sql"""
-            CREATE INDEX IF NOT EXISTS idx_captured_request_binKey_createdAt_desc
-            ON captured_request (binKey, createdAt DESC, id DESC)
+            CREATE INDEX IF NOT EXISTS idx_captured_request_binId_createdAt_desc
+            ON captured_request (binId, createdAt DESC, id DESC)
         """.update.apply()
     }
 }
