@@ -61,7 +61,7 @@ object InitDatabase {
         """.update.apply()
         sql"""
             CREATE INDEX IF NOT EXISTS idx_captured_request_binKey_createdAt_desc
-            ON captured_request (binKey, createdAt DESC)
+            ON captured_request (binKey, createdAt DESC, id DESC)
         """.update.apply()
     }
 }
