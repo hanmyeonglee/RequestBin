@@ -15,10 +15,14 @@ object CapturedRequestFactory {
         val bodyBytes = request.getInputStream.readNBytes(limit.toInt + 1)
 
         if (bodyBytes.length <= limit) {
+            val query = Option(request.getQueryString) match {
+                case Some(q) => Query(MapQueryString.parseString(q).toMap)
+                case None    => Query(Map.empty)
+            }
             Some(CapturedRequest(
                 method     = request.getMethod,
                 path       = request.getRequestURI,
-                query      = Query(MapQueryString.parseString(request.getQueryString)),
+                query      = query,
                 headers    = Headers(
                                 request.getHeaderNames
                                         .asIterator().asScala
