@@ -24,3 +24,4 @@ All requests are configured as allow-all CORS.
 - `SECONDS_TO_LIVE`: Bin TTL in seconds. Default `900`.
 - `CLEANUP_TIME_HOUR`: Daily cleanup trigger hour (0-23). Default `3`.
 - `CLEANUP_INTERVAL_SECONDS`: Cleanup scheduler polling interval. Default `300`.
+- `SCALATRA_ENV`: dev/production mode.
