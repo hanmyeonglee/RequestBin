@@ -1,12 +1,14 @@
 package infrastructure.generator
 
 import domain.shared.Generator
+import java.security.SecureRandom
 
 class BinIdGenerator extends Generator[String] {
+    private val random = new SecureRandom()
     override def generate: String =
         LazyList
-            .continually(scala.util.Random.nextInt(26))
+            .continually(random.nextInt(26))
             .map(i => ('a' + i).toChar)
-            .take(10)
+            .take(12)
             .mkString
 }
