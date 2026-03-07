@@ -10,6 +10,14 @@ import org.scalatra.util.MapQueryString
 import org.apache.commons.io.input.BoundedInputStream
 
 object CapturedRequestFactory {
+    // except reverse-proxy headers
+    private val exceptedHeaders = Set(
+        "X-Real-IP",
+        "X-Forwarded-For",
+        "X-Forwarded-Proto",
+        "X-Forwarded-Host"
+    )
+
     // createdAt is set by the application layer (RequestCollector) at persist time
     def fromHttpRequest(request: HttpServletRequest, limit: Long): Option[CapturedRequest] = {
         val bodyBytes = request.getInputStream.readNBytes(limit.toInt + 1)
@@ -26,11 +34,12 @@ object CapturedRequestFactory {
                 headers    = Headers(
                                 request.getHeaderNames
                                         .asIterator().asScala
+                                        .filter(name => !exceptedHeaders.contains(name))
                                         .map(name => (name, request.getHeader(name)))
                                         .toMap
                             ),
                 body       = Body(ArraySeq.from(bodyBytes)),
-                remoteHost = request.getRemoteHost,
+                remoteHost = Option(request.getHeader("X-Real-IP")).getOrElse(request.getRemoteAddr),
                 createdAt  = 0L
             ))
         }
