@@ -17,6 +17,10 @@ lazy val root = project
       "-encoding", "utf8"
     ),
 
+    // Infrastructure tests share a single in-memory SQLite connection;
+    // parallel execution causes pool conflicts.
+    Test / parallelExecution := false,
+
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "1.0.0" % Test,
       "io.circe" %% "circe-core" % "0.14.10",
