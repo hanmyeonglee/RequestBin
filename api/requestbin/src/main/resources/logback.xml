@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_DIR" value="${LOG_DIR:-/var/log/requestbin}"/>
+    <property name="LOG_FILE" value="${LOG_DIR}/requestbin.log"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <append>true</append>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/requestbin.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>14</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Keep framework and DB internals quiet by default. -->
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="org.scalatra" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.sqlite" level="INFO"/>
+    <logger name="scalikejdbc" level="INFO"/>
+
+    <!-- Keep app-level operational signals visible. -->
+    <logger name="application" level="INFO"/>
+    <logger name="interface" level="INFO"/>
+    <logger name="infrastructure" level="INFO"/>
+    <logger name="config" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

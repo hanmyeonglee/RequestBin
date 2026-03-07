@@ -2,6 +2,7 @@ package interface
 import org.scalatra._
 import io.circe.{Encoder, Json}
 import io.circe.syntax._
+import org.slf4j.LoggerFactory
 
 import application.{BinCreator, RequestCollector, RequestReader}
 import domain.entity.{Body, CapturedRequest, Headers, Query}
@@ -38,7 +39,14 @@ class RequestBinServlet(
     binCreator: BinCreator,
     requestReader: RequestReader
 ) extends ScalatraServlet {
+    private val logger = LoggerFactory.getLogger(this.getClass)
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
+
+    error {
+        case e: Throwable =>
+            logger.error("Unhandled servlet error", e)
+            InternalServerError("<h1>Internal Server Error</h1>")
+    }
 
     before("/*") {
         response.setHeader("Access-Control-Allow-Origin", corsPolicy.allowOrigin)
