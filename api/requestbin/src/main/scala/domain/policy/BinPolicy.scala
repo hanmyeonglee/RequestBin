@@ -1,3 +1,5 @@
 package domain.policy
 
-final case class BinPolicy(ttlSeconds: Long)
+import java.time.Duration
+
+final case class BinPolicy(ttl: Duration)

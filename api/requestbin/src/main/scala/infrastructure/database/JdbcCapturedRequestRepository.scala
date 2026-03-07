@@ -4,6 +4,7 @@ import scalikejdbc._
 import io.circe.syntax._
 import io.circe.generic.auto._
 import io.circe.parser.decode
+import java.time.Instant
 import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}
 import domain.shared.TxContext
 import domain.repository.CapturedRequestRepository
@@ -23,7 +24,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
                 ${capturedRequest.query.params.asJson.noSpaces},
                 ${capturedRequest.headers.entries.asJson.noSpaces},
                 ${capturedRequest.body.bytes.toArray}, ${capturedRequest.remoteHost},
-                ${capturedRequest.createdAt}
+                ${capturedRequest.createdAt.getEpochSecond}
             )
         """.update.apply()
     }
@@ -44,7 +45,7 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
                 headers    = Headers(decode[Map[String, String]](rs.string("headers")).getOrElse(Map.empty)),
                 body       = Body(ArraySeq.from(rs.bytes("body"))),
                 remoteHost = rs.string("remoteHost"),
-                createdAt  = rs.long("createdAt")
+                createdAt  = Instant.ofEpochSecond(rs.long("createdAt"))
             )
         }.list.apply()
     }

@@ -1,10 +1,11 @@
 package application
 
+import java.time.Instant
+import java.util.concurrent.atomic.AtomicReference
 import domain.shared.TxManager
 import domain.repository.BinRepository
 import domain.shared.Clock
 import domain.policy.SchedulerPolicy
-import java.util.concurrent.atomic.AtomicLong
 
 class BinCleaner(
     transactionManager: TxManager,
@@ -12,18 +13,18 @@ class BinCleaner(
     clock: Clock,
     policy: SchedulerPolicy
 ) {
-    private val lastCleanedUnixTimeSeconds = new AtomicLong(clock.currentUnixTimeSeconds)
+    private val lastCleanedAt = new AtomicReference[Instant](clock.now())
 
     def run: Unit = {
-        val currentUnixTimeSeconds = clock.currentUnixTimeSeconds
+        val now = clock.now()
         if (
-            policy.isCertainTimeHour(currentUnixTimeSeconds) &&
-            policy.isFirstCleanTime(currentUnixTimeSeconds, lastCleanedUnixTimeSeconds.get())
+            policy.isCertainTimeHour(now) &&
+            policy.isFirstCleanTime(now, lastCleanedAt.get())
         ) {
             transactionManager.withTx { implicit ctx =>
-                binRepository.deleteAllExpiredBins(currentUnixTimeSeconds - policy.ttlSeconds)
+                binRepository.deleteAllExpiredBins(now.minus(policy.ttl))
             }
-            lastCleanedUnixTimeSeconds.set(currentUnixTimeSeconds)
+            lastCleanedAt.set(now)
         }
     }
 }

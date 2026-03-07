@@ -8,9 +8,13 @@ import application.{BinCreator, RequestCollector, RequestReader}
 import domain.entity.{Body, CapturedRequest, Headers, Query}
 import domain.policy.CorsPolicy
 import domain.policy.RequestPolicy
+import java.time.Instant
 import java.util.Base64
 
 // Circe encoders for domain types — defined here as JSON is a presentation concern
+private given Encoder[Instant] =
+    Encoder.instance(i => Json.fromLong(i.getEpochSecond))
+
 private given Encoder[Body] =
     Encoder.instance(b => Json.fromString(Base64.getEncoder.encodeToString(b.bytes.toArray)))
 

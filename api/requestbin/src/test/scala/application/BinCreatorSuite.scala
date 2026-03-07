@@ -1,12 +1,13 @@
 package application
 
 import munit.FunSuite
+import java.time.Instant
 import domain.entity.Bin
 import domain.repository.BinRepository
 import domain.shared.{Clock, Generator, TxContext, TxManager}
 
 class BinCreatorSuite extends FunSuite {
-    private val fixedTime = 5000L
+    private val fixedTime = Instant.ofEpochSecond(5000L)
     private val fixedId   = "abcdefghij"
 
     private val stubTx = new TxManager {
@@ -14,7 +15,7 @@ class BinCreatorSuite extends FunSuite {
     }
 
     private val fixedClock = new Clock {
-        def currentUnixTimeSeconds: Long = fixedTime
+        def now(): Instant = fixedTime
     }
 
     private val fixedGenerator = new Generator[String] {
@@ -23,7 +24,7 @@ class BinCreatorSuite extends FunSuite {
 
     private def makeRepo(onSave: Bin => Unit = _ => ()): BinRepository = new BinRepository {
         def findByBinId(id: String)(implicit ctx: TxContext): Option[Bin] = None
-        def deleteAllExpiredBins(t: Long)(implicit ctx: TxContext): Unit  = ()
+        def deleteAllExpiredBins(t: Instant)(implicit ctx: TxContext): Unit = ()
         def save(bin: Bin)(implicit ctx: TxContext): Unit                 = onSave(bin)
     }
 
@@ -43,6 +44,6 @@ class BinCreatorSuite extends FunSuite {
         var saved: Option[Bin] = None
         val creator = new BinCreator(stubTx, makeRepo(b => saved = Some(b)), fixedClock, fixedGenerator)
         creator.create()
-        assertEquals(saved.map(_.lastUsedAtUnixTimeSeconds), Some(fixedTime))
+        assertEquals(saved.map(_.lastUsedAt), Some(fixedTime))
     }
 }

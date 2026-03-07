@@ -1,6 +1,7 @@
 package interface
 
 import munit.FunSuite
+import java.time.{Duration, Instant}
 import application.BinCleaner
 import domain.entity.Bin
 import domain.policy.SchedulerPolicy
@@ -10,21 +11,21 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class BinCleanupSchedulerSuite extends FunSuite {
 
-    // BinCleanupScheduler.start() uses policy.intervalSeconds for BOTH initial delay
+    // BinCleanupScheduler.start() uses policy.interval.toSeconds for BOTH initial delay
     // and repeat period (TimeUnit.SECONDS).  Minimum valid period is 1 second,
     // so the "at-least-one-call" test waits just over 1 second.
-    private val policy = SchedulerPolicy(ttlSeconds = 900L, intervalSeconds = 1L, cleanUpTimeHour = 3)
+    private val policy = SchedulerPolicy(ttl = Duration.ofSeconds(900L), interval = Duration.ofSeconds(1L), cleanUpTimeHour = 3)
 
     private val stubTx = new TxManager {
         def withTx[T](block: TxContext => T): T = block(new TxContext {})
     }
     private val stubRepo = new BinRepository {
         def findByBinId(id: String)(implicit ctx: TxContext): Option[Bin]              = None
-        def deleteAllExpiredBins(t: Long)(implicit ctx: TxContext): Unit               = ()
+        def deleteAllExpiredBins(t: Instant)(implicit ctx: TxContext): Unit             = ()
         def save(bin: Bin)(implicit ctx: TxContext): Unit                              = ()
     }
     private val stubClock = new Clock {
-        def currentUnixTimeSeconds: Long = 0L
+        def now(): Instant = Instant.EPOCH
     }
 
     // Creates a BinCleaner whose run() is replaced with a side-effect counter

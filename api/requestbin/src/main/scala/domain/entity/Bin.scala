@@ -1,21 +1,22 @@
 package domain.entity
 
+import java.time.{Duration, Instant}
 import domain.entity.CapturedRequest
 
-final case class Bin(val binId: String, val lastUsedAtUnixTimeSeconds: Long) {
+final case class Bin(val binId: String, val lastUsedAt: Instant) {
     def canAcceptRequest(
         capturedRequest: CapturedRequest,
-        currentUnixTimeSeconds: Long,
-        ttlSeconds: Long
+        now: Instant,
+        ttl: Duration
     ): Boolean = {
-        !isExpired(currentUnixTimeSeconds, ttlSeconds)
+        !isExpired(now, ttl)
     }
 
-    def isExpired(currentUnixTimeSeconds: Long, ttlSeconds: Long): Boolean = {
-        currentUnixTimeSeconds - lastUsedAtUnixTimeSeconds > ttlSeconds
+    def isExpired(now: Instant, ttl: Duration): Boolean = {
+        Duration.between(lastUsedAt, now).compareTo(ttl) > 0
     }
 
-    def markLastUsedUnixTimeSeconds(currentUnixTimeSeconds: Long): Bin = {
-        Bin(binId, currentUnixTimeSeconds)
+    def markLastUsed(now: Instant): Bin = {
+        Bin(binId, now)
     }
 }

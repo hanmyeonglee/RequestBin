@@ -1,5 +1,7 @@
 package domain.shared
 
+import java.time.Instant
+
 trait Clock {
-    def currentUnixTimeSeconds: Long
+    def now(): Instant
 }

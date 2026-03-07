@@ -1,6 +1,7 @@
 package application
 
 import munit.FunSuite
+import java.time.{Duration, Instant}
 import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}
 import domain.policy.BinPolicy
 import domain.repository.{BinRepository, CapturedRequestRepository}
@@ -8,16 +9,16 @@ import domain.shared.{Clock, TxContext, TxManager}
 import scala.collection.immutable.ArraySeq
 
 class RequestCollectorSuite extends FunSuite {
-    private val now   = 10000L
-    private val ttl   = 900L
-    private val binId = "testbin123"
+    private val fixedNow = Instant.ofEpochSecond(10000L)
+    private val ttl      = Duration.ofSeconds(900L)
+    private val binId    = "testbin123"
 
     private val stubTx = new TxManager {
         def withTx[T](block: TxContext => T): T = block(new TxContext {})
     }
 
     private val fixedClock = new Clock {
-        def currentUnixTimeSeconds: Long = now
+        def now(): Instant = fixedNow
     }
 
     private val policy = BinPolicy(ttl)
@@ -29,11 +30,11 @@ class RequestCollectorSuite extends FunSuite {
         headers    = Headers(Map.empty),
         body       = Body(ArraySeq.empty),
         remoteHost = "127.0.0.1",
-        createdAt  = 0L
+        createdAt  = Instant.EPOCH
     )
 
-    private val activeBin  = Bin(binId, now - 100L)
-    private val expiredBin = Bin(binId, now - (ttl + 100L))
+    private val activeBin  = Bin(binId, fixedNow.minus(Duration.ofSeconds(100L)))
+    private val expiredBin = Bin(binId, fixedNow.minus(ttl.plus(Duration.ofSeconds(100L))))
 
     private def makeRepos(
         foundBin: Option[Bin],
@@ -42,7 +43,7 @@ class RequestCollectorSuite extends FunSuite {
         var lastSavedBin: Option[Bin] = None
         val binRepo = new BinRepository {
             def findByBinId(id: String)(implicit ctx: TxContext): Option[Bin] = foundBin
-            def deleteAllExpiredBins(t: Long)(implicit ctx: TxContext): Unit  = ()
+            def deleteAllExpiredBins(t: Instant)(implicit ctx: TxContext): Unit = ()
             def save(bin: Bin)(implicit ctx: TxContext): Unit                 = { lastSavedBin = Some(bin) }
         }
         val reqRepo = new CapturedRequestRepository {
@@ -61,22 +62,22 @@ class RequestCollectorSuite extends FunSuite {
     }
 
     test("collect sets createdAt to current clock time") {
-        var savedCreatedAt: Option[Long] = None
+        var savedCreatedAt: Option[Instant] = None
         val (binRepo, reqRepo) = makeRepos(Some(activeBin), r => { savedCreatedAt = Some(r.createdAt) })
         new RequestCollector(stubTx, binRepo, reqRepo, fixedClock, policy).collect(binId, testRequest)
-        assertEquals(savedCreatedAt, Some(now))
+        assertEquals(savedCreatedAt, Some(fixedNow))
     }
 
     test("collect updates bin lastUsedAt after saving request") {
         var updatedBin: Option[Bin] = None
-        val (binRepo0, reqRepo) = makeRepos(Some(activeBin))
+        val (_, reqRepo) = makeRepos(Some(activeBin))
         val binRepo = new BinRepository {
             def findByBinId(id: String)(implicit ctx: TxContext): Option[Bin] = Some(activeBin)
-            def deleteAllExpiredBins(t: Long)(implicit ctx: TxContext): Unit  = ()
+            def deleteAllExpiredBins(t: Instant)(implicit ctx: TxContext): Unit = ()
             def save(bin: Bin)(implicit ctx: TxContext): Unit                 = { updatedBin = Some(bin) }
         }
         new RequestCollector(stubTx, binRepo, reqRepo, fixedClock, policy).collect(binId, testRequest)
-        assertEquals(updatedBin.map(_.lastUsedAtUnixTimeSeconds), Some(now))
+        assertEquals(updatedBin.map(_.lastUsedAt), Some(fixedNow))
     }
 
     test("collect returns false and does not save for expired bin") {

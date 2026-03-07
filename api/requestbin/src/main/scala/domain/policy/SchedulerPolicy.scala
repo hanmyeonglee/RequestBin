@@ -1,12 +1,13 @@
 package domain.policy
 
-final case class SchedulerPolicy(ttlSeconds: Long, intervalSeconds: Long, cleanUpTimeHour: Int) {
-    def isCertainTimeHour(currentUnixTimeSeconds: Long): Boolean = {
-        val currentHour = currentUnixTimeSeconds % 86400 / 3600
-        currentHour == cleanUpTimeHour
+import java.time.{Duration, Instant, ZoneId, ZonedDateTime}
+
+final case class SchedulerPolicy(ttl: Duration, interval: Duration, cleanUpTimeHour: Int) {
+    def isCertainTimeHour(now: Instant): Boolean = {
+        ZonedDateTime.ofInstant(now, ZoneId.of("Asia/Seoul")).getHour == cleanUpTimeHour
     }
 
-    def isFirstCleanTime(currentUnixTimeSeconds: Long, lastCleanedUnixTimeSeconds: Long): Boolean = {
-        (currentUnixTimeSeconds - lastCleanedUnixTimeSeconds) > 43200
+    def isFirstCleanTime(now: Instant, lastCleaned: Instant): Boolean = {
+        Duration.between(lastCleaned, now).compareTo(Duration.ofHours(12)) > 0
     }
 }

@@ -4,6 +4,7 @@ import munit.FunSuite
 import jakarta.servlet._
 import jakarta.servlet.http._
 import java.io.{BufferedReader, PrintWriter}
+import java.time.Instant
 import java.util.{Collections, Enumeration, Locale}
 import java.security.Principal
 import scala.jdk.CollectionConverters._
@@ -116,6 +117,7 @@ class CapturedRequestFactorySuite extends FunSuite {
             Collections.enumeration(headers.keys.toList.asJava)
         override def getHeader(name: String): String  = headers.getOrElse(name, null)
         override def getInputStream(): ServletInputStream = makeInputStream(body)
+        override def getRemoteAddr(): String          = remoteHost
         override def getRemoteHost(): String          = remoteHost
     }
 
@@ -135,7 +137,7 @@ class CapturedRequestFactorySuite extends FunSuite {
         assertEquals(r.headers.entries.get("X-Foo"), Some("bar"))
         assertEquals(r.body.bytes, ArraySeq.from("data".getBytes))
         assertEquals(r.remoteHost, "1.2.3.4")
-        assertEquals(r.createdAt,  0L)  // set later by RequestCollector
+        assertEquals(r.createdAt,  Instant.EPOCH)  // set later by RequestCollector
     }
 
     // --- limit boundary ---

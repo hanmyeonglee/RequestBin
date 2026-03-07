@@ -16,11 +16,11 @@ class RequestCollector(
         transactionManager.withTx { implicit ctx =>
             binRepository.findByBinId(binId) match {
                 case Some(bin) =>
-                    if (bin.canAcceptRequest(capturedRequest, systemClock.currentUnixTimeSeconds, binPolicy.ttlSeconds)) {
-                        capturedRequestRepository.save(bin, capturedRequest.copy(createdAt = systemClock.currentUnixTimeSeconds))
+                    if (bin.canAcceptRequest(capturedRequest, systemClock.now(), binPolicy.ttl)) {
+                        capturedRequestRepository.save(bin, capturedRequest.copy(createdAt = systemClock.now()))
                         binRepository.save(
-                            bin.markLastUsedUnixTimeSeconds(
-                                systemClock.currentUnixTimeSeconds
+                            bin.markLastUsed(
+                                systemClock.now()
                             )
                         )
 

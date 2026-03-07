@@ -9,6 +9,7 @@ import application.{BinCreator, BinCleaner, RequestCollector, RequestReader}
 import infrastructure.shared.SystemClock
 import domain.policy.{BinPolicy, CorsPolicy, RequestPolicy, SchedulerPolicy}
 import infrastructure.generator.BinIdGenerator
+import java.time.Duration
 
 class ScalatraBootstrap extends LifeCycle {
     override def init(context: ServletContext): Unit = {
@@ -16,7 +17,7 @@ class ScalatraBootstrap extends LifeCycle {
         val binDatabase = new JdbcBinRepository
         val capturedRequestDatabase = new JdbcCapturedRequestRepository
         val systemClock = new SystemClock
-        val binPolicy = new BinPolicy(Env.BIN_TTL_SECONDS)
+        val binPolicy = new BinPolicy(Duration.ofSeconds(Env.BIN_TTL_SECONDS))
         val requestPolicy = new RequestPolicy(Env.MAX_CONTENT_LENGTH, Env.BASE_DOMAIN)
         val corsPolicy = CorsPolicy.AllowAll
         val binIdGenerator = new BinIdGenerator
@@ -38,7 +39,11 @@ class ScalatraBootstrap extends LifeCycle {
         DBs.setupAll()
         InitDatabase.init()
 
-        val cleanUpPolicy = new SchedulerPolicy(Env.BIN_TTL_SECONDS, Env.CLEANUP_INTERVAL_SECONDS, Env.CLEANUP_TIME_HOUR)
+        val cleanUpPolicy = new SchedulerPolicy(
+            Duration.ofSeconds(Env.BIN_TTL_SECONDS),
+            Duration.ofSeconds(Env.CLEANUP_INTERVAL_SECONDS),
+            Env.CLEANUP_TIME_HOUR
+        )
         val binCleaner = new BinCleaner(txManager, binDatabase, systemClock, cleanUpPolicy)
         val cleanupScheduler = new BinCleanupScheduler(binCleaner, cleanUpPolicy)
         cleanupScheduler.start()

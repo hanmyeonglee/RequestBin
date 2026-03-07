@@ -1,6 +1,7 @@
 package application
 
 import munit.FunSuite
+import java.time.Instant
 import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}
 import domain.repository.{BinRepository, CapturedRequestRepository}
 import domain.shared.{TxContext, TxManager}
@@ -13,7 +14,7 @@ class RequestReaderSuite extends FunSuite {
         def withTx[T](block: TxContext => T): T = block(new TxContext {})
     }
 
-    private val testBin = Bin(binId, 0L)
+    private val testBin = Bin(binId, Instant.EPOCH)
 
     private def makeRequest(i: Int) = CapturedRequest(
         method     = "GET",
@@ -22,7 +23,7 @@ class RequestReaderSuite extends FunSuite {
         headers    = Headers(Map.empty),
         body       = Body(ArraySeq.empty),
         remoteHost = "127.0.0.1",
-        createdAt  = i.toLong
+        createdAt  = Instant.ofEpochSecond(i.toLong)
     )
 
     private def makeRepos(
@@ -31,7 +32,7 @@ class RequestReaderSuite extends FunSuite {
     ): (BinRepository, CapturedRequestRepository) = {
         val binRepo = new BinRepository {
             def findByBinId(id: String)(implicit ctx: TxContext): Option[Bin] = foundBin
-            def deleteAllExpiredBins(t: Long)(implicit ctx: TxContext): Unit  = ()
+            def deleteAllExpiredBins(t: Instant)(implicit ctx: TxContext): Unit = ()
             def save(bin: Bin)(implicit ctx: TxContext): Unit                 = ()
         }
         val reqRepo = new CapturedRequestRepository {

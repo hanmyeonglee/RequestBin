@@ -2,6 +2,7 @@ package infrastructure
 
 import munit.FunSuite
 import scalikejdbc._
+import java.time.Instant
 import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}
 import domain.shared.TxContext
 import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository, JdbcTxManager}
@@ -13,7 +14,7 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
     private val binRepo        = new JdbcBinRepository
     private val capturedReqRepo = new JdbcCapturedRequestRepository
 
-    private val testBin = Bin("test-bin", 1000L)
+    private val testBin = Bin("test-bin", Instant.ofEpochSecond(1000L))
 
     private val baseRequest = CapturedRequest(
         method     = "POST",
@@ -22,7 +23,7 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
         headers    = Headers(Map("Content-Type" -> "application/json")),
         body       = Body(ArraySeq.from("hello".getBytes)),
         remoteHost = "192.168.1.1",
-        createdAt  = 5000L
+        createdAt  = Instant.ofEpochSecond(5000L)
     )
 
     override def beforeAll(): Unit                    = SqliteTestHelper.setupPool()
@@ -46,7 +47,7 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
         assertEquals(r.method,     "POST")
         assertEquals(r.path,       "/api/test")
         assertEquals(r.remoteHost, "192.168.1.1")
-        assertEquals(r.createdAt,  5000L)
+        assertEquals(r.createdAt,  Instant.ofEpochSecond(5000L))
     }
 
     test("query params with multiple values survive JSON round-trip") {
@@ -92,16 +93,16 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
     // --- ordering ---
 
     test("read returns rows in createdAt DESC order") {
-        val req1 = baseRequest.copy(createdAt = 1000L)
-        val req2 = baseRequest.copy(createdAt = 3000L)
-        val req3 = baseRequest.copy(createdAt = 2000L)
+        val req1 = baseRequest.copy(createdAt = Instant.ofEpochSecond(1000L))
+        val req2 = baseRequest.copy(createdAt = Instant.ofEpochSecond(3000L))
+        val req3 = baseRequest.copy(createdAt = Instant.ofEpochSecond(2000L))
         withTx { implicit ctx =>
             capturedReqRepo.save(testBin, req1)
             capturedReqRepo.save(testBin, req2)
             capturedReqRepo.save(testBin, req3)
         }
         val results = withTx { implicit ctx => capturedReqRepo.read(testBin, 10) }
-        assertEquals(results.map(_.createdAt).toList, List(3000L, 2000L, 1000L))
+        assertEquals(results.map(_.createdAt).toList, List(Instant.ofEpochSecond(3000L), Instant.ofEpochSecond(2000L), Instant.ofEpochSecond(1000L)))
     }
 
     // --- failure / side-effect cases ---
@@ -121,7 +122,7 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
     }
 
     test("save raises SQLException when bin does not exist (FK violation)") {
-        val missingBin = Bin("nonexistent-bin", 1000L)
+        val missingBin = Bin("nonexistent-bin", Instant.ofEpochSecond(1000L))
         intercept[java.sql.SQLException] {
             withTx { implicit ctx => capturedReqRepo.save(missingBin, baseRequest) }
         }

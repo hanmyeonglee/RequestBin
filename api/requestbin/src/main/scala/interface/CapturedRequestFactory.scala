@@ -2,6 +2,7 @@ package interface
 
 import domain.entity.{Body, CapturedRequest, Headers, Query}
 import jakarta.servlet.http.HttpServletRequest
+import java.time.Instant
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.ArraySeq
 import java.net.URLDecoder
@@ -40,7 +41,7 @@ object CapturedRequestFactory {
                             ),
                 body       = Body(ArraySeq.from(bodyBytes)),
                 remoteHost = Option(request.getHeader("X-Real-IP")).getOrElse(request.getRemoteAddr),
-                createdAt  = 0L
+                createdAt  = Instant.EPOCH
             ))
         }
         else None

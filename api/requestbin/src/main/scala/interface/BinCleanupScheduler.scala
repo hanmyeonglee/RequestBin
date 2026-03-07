@@ -11,7 +11,7 @@ class BinCleanupScheduler(cleaner: BinCleaner, policy: SchedulerPolicy) {
     private val scheduler = Executors.newSingleThreadScheduledExecutor()
 
     def start(): Unit = {
-        logger.info(s"Starting bin cleanup scheduler. intervalSeconds=${policy.intervalSeconds}")
+        logger.info(s"Starting bin cleanup scheduler. interval=${policy.interval}")
 
         val cleanupTask = new Runnable {
             override def run(): Unit = {
@@ -26,8 +26,8 @@ class BinCleanupScheduler(cleaner: BinCleaner, policy: SchedulerPolicy) {
 
         scheduler.scheduleAtFixedRate(
             cleanupTask,
-            policy.intervalSeconds,
-            policy.intervalSeconds,
+            policy.interval.toSeconds,
+            policy.interval.toSeconds,
             TimeUnit.SECONDS
         )
     }

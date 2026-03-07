@@ -1,6 +1,7 @@
 package infrastructure.database
 
 import scalikejdbc._
+import java.time.Instant
 import domain.entity.Bin
 import domain.shared.TxContext
 import domain.repository.BinRepository
@@ -14,16 +15,16 @@ class JdbcBinRepository extends BinRepository with JdbcRepository {
             FROM bin
             WHERE binId = ${binId}
         """
-            .map(rs => Bin(rs.string("binId"), rs.long("lastUsedAt")))
+            .map(rs => Bin(rs.string("binId"), Instant.ofEpochSecond(rs.long("lastUsedAt"))))
             .single
             .apply()
     }
 
-    def deleteAllExpiredBins(thresholdSeconds: Long)(implicit ctx: TxContext): Unit = {
+    def deleteAllExpiredBins(threshold: Instant)(implicit ctx: TxContext): Unit = {
         implicit val session: DBSession = dbSession
         sql"""
             DELETE FROM bin
-            WHERE lastUsedAt < ${thresholdSeconds}
+            WHERE lastUsedAt < ${threshold.getEpochSecond}
         """.update.apply()
     }
 
@@ -31,7 +32,7 @@ class JdbcBinRepository extends BinRepository with JdbcRepository {
         implicit val session: DBSession = dbSession
         sql"""
             INSERT INTO bin (binId, lastUsedAt)
-            VALUES (${bin.binId}, ${bin.lastUsedAtUnixTimeSeconds})
+            VALUES (${bin.binId}, ${bin.lastUsedAt.getEpochSecond})
             ON CONFLICT (binId)
             DO UPDATE SET lastUsedAt = excluded.lastUsedAt
         """.update.apply()
