@@ -9,13 +9,15 @@ object InitDatabase {
     private val initialized = new AtomicBoolean(false)
 
     private val migrations: Seq[Migration] = Seq(
-        pragmaSetting,
         createBinTable,
         createCapturedRequestTable
     )
 
     def init(): Unit = {
         if (initialized.compareAndSet(false, true)) {
+            DB.autoCommit { session =>
+                pragmaSetting(session)
+            }
             DB.localTx { session =>
                 migrations.foreach(migration => migration(session))
             }

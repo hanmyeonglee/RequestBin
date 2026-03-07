@@ -170,15 +170,15 @@ class CapturedRequestFactorySuite extends FunSuite {
         assertEquals(result.get.headers.entries, Map.empty)
     }
 
-    // --- failure: null queryString ---
+    // --- edge case: null queryString ---
 
-    // MapQueryString.parseString calls rw.indexOf(';') directly without a null guard,
-    // so a null queryString (standard Servlet behaviour when no query string is present)
-    // causes NullPointerException.  This test documents the existing behaviour.
-    test("null queryString throws NullPointerException - known bug in MapQueryString") {
-        val req = makeRequest(queryString = null)
-        intercept[NullPointerException] {
-            CapturedRequestFactory.fromHttpRequest(req, 1024L)
-        }
+    // Servlet may return null when no query exists.
+    // The factory should treat it as an empty query string.
+    test("null queryString does not throw and yields empty query params") {
+        val req    = makeRequest(queryString = null)
+        val result = CapturedRequestFactory.fromHttpRequest(req, 1024L)
+
+        assert(result.isDefined)
+        assertEquals(result.get.query.params, Map.empty)
     }
 }
