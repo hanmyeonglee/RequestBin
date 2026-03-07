@@ -1,8 +1,26 @@
-## sbt project compiled with Scala 3
+## requestbin
 
-### Usage
+Lightweight request capture service built with Scalatra and Scala 3.
 
-This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
+### CORS policy
 
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
+All requests are configured as allow-all CORS.
+
+- `Access-Control-Allow-Origin: *`
+- `Access-Control-Allow-Methods: *`
+- `Access-Control-Allow-Headers: *`
+
+### Run
+
+- `sbt compile`
+- `sbt run`
+
+### Environment variables
+
+- `REQUESTBIN_BASE_DOMAIN`: Base domain used for API and bin subdomain routing. Required.
+- `PORT`: HTTP server port. Default `80`.
+- `MAX_CONTENT_LENGTH`: Max request body size in bytes. Default `10485760` (10MB).
+- `MAX_HEADER_SIZE`: Max header size in bytes. Default `10240` (10KB).
+- `SECONDS_TO_LIVE`: Bin TTL in seconds. Default `900`.
+- `CLEANUP_TIME_HOUR`: Daily cleanup trigger hour (0-23). Default `3`.
+- `CLEANUP_INTERVAL_SECONDS`: Cleanup scheduler polling interval. Default `300`.

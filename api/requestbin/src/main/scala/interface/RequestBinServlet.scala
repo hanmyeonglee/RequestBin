@@ -5,6 +5,7 @@ import io.circe.syntax._
 
 import application.{BinCreator, RequestCollector, RequestReader}
 import domain.entity.{Body, CapturedRequest, Headers, Query}
+import domain.policy.CorsPolicy
 import domain.policy.RequestPolicy
 import java.util.Base64
 
@@ -32,6 +33,7 @@ private given Encoder[CapturedRequest] = Encoder.instance { r =>
 
 class RequestBinServlet(
     collector: RequestCollector,
+    corsPolicy: CorsPolicy,
     requestPolicy: RequestPolicy,
     binCreator: BinCreator,
     requestReader: RequestReader
@@ -39,6 +41,14 @@ class RequestBinServlet(
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
 
     before("/*") {
+        response.setHeader("Access-Control-Allow-Origin", corsPolicy.allowOrigin)
+        response.setHeader("Access-Control-Allow-Methods", corsPolicy.allowMethods)
+        response.setHeader("Access-Control-Allow-Headers", corsPolicy.allowHeaders)
+
+        if (request.getMethod.equalsIgnoreCase("OPTIONS")) {
+            halt(200)
+        }
+
         if (request.getContentLength > requestPolicy.maxContentLength) {
             halt(413, "<h1>Payload Too Large</h1>")
         }
@@ -57,6 +67,10 @@ class RequestBinServlet(
             }
             case _ => halt(404, "<h1>Not Found</h1>")
         }
+    }
+
+    options("/*") {
+        halt(200)
     }
 
     get("/bin/create") {
