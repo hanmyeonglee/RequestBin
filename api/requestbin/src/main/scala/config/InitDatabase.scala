@@ -15,18 +15,10 @@ object InitDatabase {
 
     def init(): Unit = {
         if (initialized.compareAndSet(false, true)) {
-            DB.autoCommit { session =>
-                pragmaSetting(session)
-            }
             DB.localTx { session =>
                 migrations.foreach(migration => migration(session))
             }
         }
-    }
-
-    private def pragmaSetting(session: DBSession): Unit = {
-        implicit val implicitSession: DBSession = session
-        sql"PRAGMA foreign_keys = ON".update.apply()
     }
 
     private def createBinTable(session: DBSession): Unit = {
@@ -34,10 +26,10 @@ object InitDatabase {
 
         sql"""
             CREATE TABLE IF NOT EXISTS bin (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY,
                 binId TEXT NOT NULL UNIQUE,
                 lastUsedAt INTEGER NOT NULL
-            )
+            ) STRICT;
         """.update.apply()
         sql"""
             CREATE INDEX IF NOT EXISTS idx_bin_binId ON bin (binId)
@@ -49,17 +41,17 @@ object InitDatabase {
 
         sql"""
             CREATE TABLE IF NOT EXISTS captured_request (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                binId INTEGER NOT NULL,
+                id INTEGER PRIMARY KEY,
+                binId TEXT NOT NULL,
                 method TEXT NOT NULL,
                 path TEXT NOT NULL,
-                query TEXT NOT NULL,
-                headers TEXT NOT NULL,
+                query TEXT NOT NULL CHECK (json_valid(query)),
+                headers TEXT NOT NULL CHECK (json_valid(headers)),
                 body BLOB NOT NULL,
                 remoteHost TEXT NOT NULL,
                 createdAt INTEGER NOT NULL,
                 FOREIGN KEY (binId) REFERENCES bin(binId) ON DELETE CASCADE
-            )
+            ) STRICT;
         """.update.apply()
         sql"""
             CREATE INDEX IF NOT EXISTS idx_captured_request_binId_createdAt_desc

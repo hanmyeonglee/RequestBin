@@ -41,8 +41,18 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
             CapturedRequest(
                 method     = rs.string("method"),
                 path       = rs.string("path"),
-                query      = Query(decode[Map[String, List[String]]](rs.string("query")).getOrElse(Map.empty)),
-                headers    = Headers(decode[Map[String, String]](rs.string("headers")).getOrElse(Map.empty)),
+                query      = Query(
+                                decode[Map[String, List[String]]](rs.string("query")) match {
+                                    case Right(params) => params
+                                    case Left(_)       => throw new RuntimeException("Failed to decode query JSON")
+                                }
+                            ),
+                headers    = Headers(
+                                decode[Map[String, String]](rs.string("headers")) match {
+                                    case Right(headers) => headers
+                                    case Left(_)        => throw new RuntimeException("Failed to decode headers JSON")
+                                }
+                            ),
                 body       = Body(ArraySeq.from(rs.bytes("body"))),
                 remoteHost = rs.string("remoteHost"),
                 createdAt  = Instant.ofEpochSecond(rs.long("createdAt"))

@@ -10,7 +10,7 @@ object SqliteTestHelper {
     def setupPool(): Unit = {
         Class.forName("org.sqlite.JDBC")
         ConnectionPool.singleton(
-            "jdbc:sqlite::memory:",
+            "jdbc:sqlite::memory:?foreign_keys=on&journal_mode=WAL&synchronous=NORMAL&busy_timeout=5000",
             "",
             "",
             ConnectionPoolSettings(initialSize = 1, maxSize = 1, validationQuery = "select 1")
