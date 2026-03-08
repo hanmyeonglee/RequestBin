@@ -47,11 +47,20 @@ class RequestBinServlet(
 ) extends ScalatraServlet {
     private val logger = LoggerFactory.getLogger(this.getClass)
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
+    
+    private val PAYLOAD_413 = "<h1>Payload Too Large</h1>"
+    private val NOT_FOUND_404 = "<h1>Not Found</h1>"
+    private val BAD_REQUEST_400 = "<h1>Bad Request</h1>"
+    private val INTERNAL_SERVER_ERROR_500 = "<h1>Internal Server Error</h1>"
+    private val UNAUTHORIZED_401 = Map("error" -> "Unauthorized").asJson.noSpaces
+
+    private val CONTENT_TYPE_HTML = Map("Content-Type" -> "text/html; charset=UTF-8")
+    private val CONTENT_TYPE_JSON = Map("Content-Type" -> "application/json; charset=UTF-8")
 
     error {
         case e: Throwable =>
             logger.error("Unhandled servlet error", e)
-            InternalServerError("<h1>Internal Server Error</h1>")
+            InternalServerError(INTERNAL_SERVER_ERROR_500)
     }
 
     before("/*") {
@@ -64,7 +73,7 @@ class RequestBinServlet(
         }
 
         if (request.getContentLength > requestPolicy.maxContentLength) {
-            halt(413, "<h1>Payload Too Large</h1>")
+            halt(413, PAYLOAD_413, CONTENT_TYPE_HTML)
         }
 
         request.getServerName.toLowerCase.split('.').toList match {
@@ -74,12 +83,12 @@ class RequestBinServlet(
                     case Some(capturedRequest) => 
                         collector.collect(binId, capturedRequest) match {
                             case true => halt(200, Option(request.getHeader("X-Real-IP")).getOrElse(request.getRemoteAddr))
-                            case false => halt(404, "<h1>Not Found</h1>")
+                            case false => halt(404, NOT_FOUND_404, CONTENT_TYPE_HTML)
                         }
-                    case None => halt(400, "<h1>Bad Request</h1>")
+                    case None => halt(400, BAD_REQUEST_400, CONTENT_TYPE_HTML)
                 }
             }
-            case _ => halt(404, "<h1>Not Found</h1>")
+            case _ => halt(404, NOT_FOUND_404, CONTENT_TYPE_HTML)
         }
     }
 
@@ -91,8 +100,8 @@ class RequestBinServlet(
             case _ => None
         }
         token match {
-            case None    => halt(401, """{"error":"Unauthorized"}""")
-            case Some(t) => tokenValidator.validate(t).left.foreach(_ => halt(401, """{"error":"Unauthorized"}"""))
+            case None    => halt(401, UNAUTHORIZED_401, CONTENT_TYPE_JSON)
+            case Some(t) => tokenValidator.validate(t).left.foreach(_ => halt(401, UNAUTHORIZED_401, CONTENT_TYPE_JSON))
         }
     }
 
@@ -111,10 +120,10 @@ class RequestBinServlet(
     get("/bin/read/:binId/:numToRead") {
         val binId = params("binId")
         params("numToRead").toIntOption.filter(_ >= 0) match {
-            case None      => halt(400, "<h1>Bad Request</h1>")
+            case None      => halt(400, BAD_REQUEST_400, CONTENT_TYPE_HTML)
             case Some(num) =>
                 requestReader.read(binId, num) match {
-                    case None       => halt(404, "<h1>Not Found</h1>")
+                    case None       => halt(404, NOT_FOUND_404, CONTENT_TYPE_HTML)
                     case Some(reqs) =>
                         contentType = "application/json"
                         reqs.asJson.noSpaces
