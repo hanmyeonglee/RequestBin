@@ -3,7 +3,6 @@ package interface
 import domain.policy.SchedulerPolicy
 import application.BinCleaner
 import java.util.concurrent.{Executors, TimeUnit}
-import scala.concurrent.duration._
 import org.slf4j.LoggerFactory
 
 class BinCleanupScheduler(cleaner: BinCleaner, policy: SchedulerPolicy) {

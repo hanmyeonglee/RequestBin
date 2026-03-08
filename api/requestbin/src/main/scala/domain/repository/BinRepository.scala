@@ -2,7 +2,7 @@ package domain.repository
 
 import java.time.Instant
 import domain.shared.TxContext
-import domain.entity.{Bin, CapturedRequest}
+import domain.entity.Bin
 
 trait BinRepository {
     def findByBinId(binId: String)(implicit ctx: TxContext): Option[Bin]

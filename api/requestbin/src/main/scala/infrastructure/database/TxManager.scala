@@ -2,8 +2,6 @@ package infrastructure.database
 
 import scalikejdbc._
 import domain.shared.{TxContext, TxManager}
-import scala.collection.immutable.ArraySeq
-import java.sql.PreparedStatement
 
 final case class JdbcTxContext(session: DBSession) extends TxContext
 

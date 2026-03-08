@@ -1,6 +1,5 @@
 import org.eclipse.jetty.server.{Server, HttpConfiguration, HttpConnectionFactory, ServerConnector}
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
-import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.scalatra.servlet.ScalatraListener
 import config.Env
 

@@ -2,7 +2,6 @@ package infrastructure.database
 
 import scalikejdbc._
 import io.circe.syntax._
-import io.circe.generic.auto._
 import io.circe.parser.decode
 import java.time.Instant
 import domain.entity.{Bin, Body, CapturedRequest, Headers, Query}

@@ -5,10 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import java.time.Instant
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.ArraySeq
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import org.scalatra.util.MapQueryString
-import org.apache.commons.io.input.BoundedInputStream
 
 object CapturedRequestFactory {
     // except reverse-proxy headers

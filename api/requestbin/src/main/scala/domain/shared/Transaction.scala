@@ -1,7 +1,5 @@
 package domain.shared
 
-import domain.entity.{Bin, CapturedRequest}
-
 trait TxContext
 
 trait TxManager {

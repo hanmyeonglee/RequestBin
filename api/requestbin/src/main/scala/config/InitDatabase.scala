@@ -1,7 +1,6 @@
 package config
 
 import scalikejdbc._
-import scalikejdbc.config._
 import java.util.concurrent.atomic.AtomicBoolean
 
 object InitDatabase {

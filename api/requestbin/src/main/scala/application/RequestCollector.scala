@@ -1,6 +1,6 @@
 package application
 
-import domain.entity.{Bin, CapturedRequest}
+import domain.entity.CapturedRequest
 import domain.repository.{BinRepository, CapturedRequestRepository}
 import domain.shared.{Clock, TxManager}
 import domain.policy.BinPolicy
