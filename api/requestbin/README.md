@@ -1,8 +1,8 @@
-## requestbin
+# RequestBin
 
 Lightweight request capture service built with Scalatra and Scala 3.
 
-### CORS policy
+## CORS policy
 
 All requests are configured as allow-all CORS.
 
@@ -10,12 +10,12 @@ All requests are configured as allow-all CORS.
 - `Access-Control-Allow-Methods: *`
 - `Access-Control-Allow-Headers: *`
 
-### Run
+## Run
 
 - `sbt compile`
 - `sbt run`
 
-### Environment variables
+## Environment variables
 
 - `REQUESTBIN_BASE_DOMAIN`: Base domain used for API and bin subdomain routing. Required.
 - `PORT`: HTTP server port. Default `80`.
