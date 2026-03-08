@@ -5,6 +5,7 @@ import io.circe.syntax._
 import org.slf4j.LoggerFactory
 
 import application.{BinCreator, RequestCollector, RequestReader}
+import domain.auth.TokenValidator
 import domain.entity.{Body, CapturedRequest, Headers, Query}
 import domain.policy.CorsPolicy
 import domain.policy.RequestPolicy
@@ -41,7 +42,8 @@ class RequestBinServlet(
     corsPolicy: CorsPolicy,
     requestPolicy: RequestPolicy,
     binCreator: BinCreator,
-    requestReader: RequestReader
+    requestReader: RequestReader,
+    tokenValidator: TokenValidator
 ) extends ScalatraServlet {
     private val logger = LoggerFactory.getLogger(this.getClass)
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
@@ -80,6 +82,22 @@ class RequestBinServlet(
             case _ => halt(404, "<h1>Not Found</h1>")
         }
     }
+
+    // Extracts the Bearer token from the Authorization header and validates it.
+    // Halts with 401 if the header is missing, malformed, or the token is invalid.
+    private def requireAuth(): Unit = {
+        val token = Option(request.getHeader("Authorization")) match {
+            case Some(s"Bearer $token") => Some(token)
+            case _ => None
+        }
+        token match {
+            case None    => halt(401, """{"error":"Unauthorized"}""")
+            case Some(t) => tokenValidator.validate(t).left.foreach(_ => halt(401, """{"error":"Unauthorized"}"""))
+        }
+    }
+
+    before("/bin/create")   { requireAuth() }
+    before("/bin/read/*")   { requireAuth() }
 
     options("/*") {
         halt(200)

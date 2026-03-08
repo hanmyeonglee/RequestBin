@@ -7,6 +7,10 @@ object Env {
     // Domain Configuration
     val BASE_DOMAIN: String = sys.env("REQUESTBIN_BASE_DOMAIN")
 
+    // Microsoft Entra authentication (required for /bin/create and /bin/read)
+    val ENTRA_TENANT_ID: String = sys.env("ENTRA_TENANT_ID")
+    val ENTRA_CLIENT_ID: String = sys.env("ENTRA_CLIENT_ID")
+
     // Resource Limits (DoS Prevention)
     // 10MB limit for request body to prevent memory exhaustion
     val MAX_CONTENT_LENGTH: Int = sys.env.getOrElse("MAX_CONTENT_LENGTH", (10 * 1024 * 1024).toString).toInt

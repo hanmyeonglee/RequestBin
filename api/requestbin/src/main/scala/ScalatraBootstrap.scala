@@ -5,10 +5,14 @@ import config.Env
 import scalikejdbc.config._
 import config.InitDatabase
 import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository, JdbcTxManager}
+import infrastructure.auth.EntraTokenValidator
 import application.{BinCreator, BinCleaner, RequestCollector, RequestReader}
 import infrastructure.shared.SystemClock
 import domain.policy.{BinPolicy, CorsPolicy, RequestPolicy, SchedulerPolicy}
 import infrastructure.generator.BinIdGenerator
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder
+import com.nimbusds.jose.proc.SecurityContext
+import java.net.URI
 import java.time.Duration
 
 class ScalatraBootstrap extends LifeCycle {
@@ -22,6 +26,13 @@ class ScalatraBootstrap extends LifeCycle {
         val corsPolicy = CorsPolicy.AllowAll
         val binIdGenerator = new BinIdGenerator
 
+        // JWKS endpoint for Entra v2 — RemoteJWKSet caches keys and refreshes on key rotation.
+        val jwkSource = JWKSourceBuilder.create(
+            URI.create(s"https://login.microsoftonline.com/${Env.ENTRA_TENANT_ID}/discovery/v2.0/keys").toURL
+        )
+            .build()
+        val tokenValidator = new EntraTokenValidator(jwkSource, Env.ENTRA_TENANT_ID, Env.ENTRA_CLIENT_ID)
+
         context.mount(new RequestBinServlet(
             new RequestCollector(
                 txManager,
@@ -33,7 +44,8 @@ class ScalatraBootstrap extends LifeCycle {
             corsPolicy,
             requestPolicy,
             new BinCreator(txManager, binDatabase, systemClock, binIdGenerator),
-            new RequestReader(txManager, binDatabase, capturedRequestDatabase)
+            new RequestReader(txManager, binDatabase, capturedRequestDatabase),
+            tokenValidator
         ), "/*")
 
         DBs.setupAll()
