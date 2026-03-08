@@ -116,9 +116,9 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
                 VALUES (${"test-bin"}, "GET", "/", "not-json", "also-not-json", ${Array.emptyByteArray}, "127.0.0.1", 1000)
             """.update.apply()
         }
-        val results = withTx { implicit ctx => capturedReqRepo.read(testBin, 10) }
-        assertEquals(results.head.query.params,    Map.empty)
-        assertEquals(results.head.headers.entries, Map.empty)
+        intercept[RuntimeException] {
+            withTx { implicit ctx => capturedReqRepo.read(testBin, 10) }
+        }
     }
 
     test("save raises SQLException when bin does not exist (FK violation)") {
