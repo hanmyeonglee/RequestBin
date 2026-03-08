@@ -2,3 +2,6 @@ services:
   api:
     build: ./api
     restart: always
+  web:
+    build: ./web
+    restart: always
