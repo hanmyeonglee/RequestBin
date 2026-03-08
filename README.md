@@ -5,7 +5,7 @@ This program is for code-level checkable HTTP Request for PLUS Member.
 ## TODO List
 
 - [ ] HTTP RequestBin API using Scala
-  - [ ] User Verification
+  - [x] User Verification
   - [x] HTTP Parsing + API
   - [x] Subdomain Management
   - [ ] Rate Limiter (Optional)
