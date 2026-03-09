@@ -7,7 +7,10 @@ RUN npm i
 COPY requestbin/ .
 RUN npm run build
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 WORKDIR /app/dist
 EXPOSE 80
 
-CMD ["npx", "serve", "-l", "80"]
+ENTRYPOINT ["/entrypoint.sh"]
