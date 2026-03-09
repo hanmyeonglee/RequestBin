@@ -8,7 +8,7 @@ import infrastructure.database.{JdbcBinRepository, JdbcCapturedRequestRepository
 import infrastructure.auth.EntraTokenValidator
 import application.{BinCreator, BinCleaner, RequestCollector, RequestReader}
 import infrastructure.shared.SystemClock
-import domain.policy.{BinPolicy, CorsPolicy, RequestPolicy, SchedulerPolicy}
+import domain.policy.{BinPolicy, CorsPolicy, RequestPolicy, SchedulerPolicy, AuthPolicy}
 import infrastructure.generator.BinIdGenerator
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder
 import com.nimbusds.jose.proc.SecurityContext
@@ -25,6 +25,7 @@ class ScalatraBootstrap extends LifeCycle {
         val requestPolicy = new RequestPolicy(Env.MAX_CONTENT_LENGTH, Env.BASE_DOMAIN)
         val corsPolicy = CorsPolicy.AllowAll
         val binIdGenerator = new BinIdGenerator
+        val authPolicy = AuthPolicy(Env.AUTH_NECESSARY)
 
         // JWKS endpoint for Entra v2 — RemoteJWKSet caches keys and refreshes on key rotation.
         val jwkSource = JWKSourceBuilder.create(
@@ -45,7 +46,8 @@ class ScalatraBootstrap extends LifeCycle {
             requestPolicy,
             new BinCreator(txManager, binDatabase, systemClock, binIdGenerator),
             new RequestReader(txManager, binDatabase, capturedRequestDatabase),
-            tokenValidator
+            tokenValidator,
+            authPolicy
         ), "/*")
 
         DBs.setupAll()

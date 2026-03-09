@@ -9,6 +9,7 @@ import domain.auth.TokenValidator
 import domain.entity.{Body, CapturedRequest, Headers, Query}
 import domain.policy.CorsPolicy
 import domain.policy.RequestPolicy
+import domain.policy.AuthPolicy
 import java.time.Instant
 import java.util.Base64
 
@@ -43,7 +44,8 @@ class RequestBinServlet(
     requestPolicy: RequestPolicy,
     binCreator: BinCreator,
     requestReader: RequestReader,
-    tokenValidator: TokenValidator
+    tokenValidator: TokenValidator,
+    authPolicy: AuthPolicy
 ) extends ScalatraServlet {
     private val logger = LoggerFactory.getLogger(this.getClass)
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
@@ -95,6 +97,8 @@ class RequestBinServlet(
     // Extracts the Bearer token from the Authorization header and validates it.
     // Halts with 401 if the header is missing, malformed, or the token is invalid.
     private def requireAuth(): Unit = {
+        if (!authPolicy.isAuthNeeded) return
+        
         val token = Option(request.getHeader("Authorization")) match {
             case Some(s"Bearer $token") => Some(token)
             case _ => None

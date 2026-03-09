@@ -25,4 +25,7 @@ object Env {
     // Cleanup Scheduler Configuration
     val CLEANUP_TIME_HOUR: Int = sys.env.getOrElse("CLEANUP_TIME_HOUR", "3").toInt
     val CLEANUP_INTERVAL_SECONDS: Int = sys.env.getOrElse("CLEANUP_INTERVAL_SECONDS", (5 * 60).toString).toInt
+
+    // authentication configuration for dev
+    val AUTH_NECESSARY: Boolean = sys.env.getOrElse("AUTH_NECESSARY", "true").toBoolean
 }

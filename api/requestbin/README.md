@@ -27,6 +27,7 @@ All requests are configured as allow-all CORS.
 - `SCALATRA_ENV`: dev/production mode.
 - `ENTRA_TENANT_ID`: microsoft ENTRA ID. Required.
 - `ENTRA_CLIENT_ID`: microsoft app id(not client_secret). Required.
+- `AUTH_NEEDED`
 
 ## API
 
