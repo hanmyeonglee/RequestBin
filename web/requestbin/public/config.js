@@ -4,4 +4,7 @@ window.__config__ = {
     BIN_BASE_DOMAIN: 'api.requestbin.localhost',
     POLL_INTERVAL_MS: 10000,
     NUM_REQUESTS: 25,
+    ENTRA_TENANT_ID: '',
+    ENTRA_CLIENT_ID: '',
+    ENTRA_SCOPE: '',
 };
