@@ -9,9 +9,9 @@ This program is for code-level checkable HTTP Request for PLUS Member.
   - [x] HTTP Parsing + API
   - [x] Subdomain Management
   - [ ] Rate Limiter (Optional)
-- [ ] WebSite to show Request using Lit
-  - [ ] User Login
-  - [ ] Periodical Request Check
+- [x] WebSite to show Request using Lit
+  - [x] User Login
+  - [x] Periodical Request Check
 - [ ] Python Library to handle Request in code level
   - [ ] User Login
   - [ ] Code API
