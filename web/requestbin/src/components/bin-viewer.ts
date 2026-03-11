@@ -108,7 +108,8 @@ export class BinViewer extends LitElement {
             this.loading = false;
             this.lastFetchAt = Date.now();
             this.pollProgress = 0;
-            this.schedulePoll(); // recursive: schedule next after this one completes
+            if (!document.hidden)
+                this.schedulePoll(); // recursive: schedule next after this one completes
         }
     }
 
