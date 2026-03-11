@@ -4,24 +4,33 @@ import {
     type AccountInfo,
     InteractionRequiredAuthError,
 } from '@azure/msal-browser';
-import { ENTRA_CLIENT_ID, ENTRA_SCOPE, ENTRA_TENANT_ID } from './config';
+import { API_URL } from './config';
+import type { EntraConfig } from './types';
 
-const msalConfig: Configuration = {
-    auth: {
-        clientId: ENTRA_CLIENT_ID,
-        authority: `https://login.microsoftonline.com/${ENTRA_TENANT_ID}`,
-        redirectUri: window.location.origin,
-    },
-    cache: {
-        cacheLocation: 'localStorage',
-    },
-};
-
-const msalInstance = new PublicClientApplication(msalConfig);
+let msalInstance: PublicClientApplication | null = null;
+let entraScope = '';
 
 // Must be called once on app startup.
-// Handles the redirect response if returning from Microsoft login.
+// Fetches Entra config from /config, initializes MSAL, and handles redirect response.
 export async function initAuth(): Promise<void> {
+    const res = await fetch(`${API_URL}/config`);
+    if (!res.ok) throw new Error(`Failed to load auth config: ${res.status}`);
+    const { tenantId, clientId, scope } = await res.json() as EntraConfig;
+
+    entraScope = scope;
+
+    const msalConfig: Configuration = {
+        auth: {
+            clientId,
+            authority: `https://login.microsoftonline.com/${tenantId}`,
+            redirectUri: window.location.origin,
+        },
+        cache: {
+            cacheLocation: 'localStorage',
+        },
+    };
+
+    msalInstance = new PublicClientApplication(msalConfig);
     await msalInstance.initialize();
     await msalInstance.handleRedirectPromise();
 
@@ -33,21 +42,21 @@ export async function initAuth(): Promise<void> {
 }
 
 export function isAuthenticated(): boolean {
-    return msalInstance.getAllAccounts().length > 0;
+    return (msalInstance?.getAllAccounts().length ?? 0) > 0;
 }
 
 export function getAccount(): AccountInfo | null {
-    return msalInstance.getActiveAccount() ?? msalInstance.getAllAccounts()[0] ?? null;
+    return msalInstance?.getActiveAccount() ?? msalInstance?.getAllAccounts()[0] ?? null;
 }
 
 // Redirects to Microsoft login page. Returns after page reload.
 export async function login(): Promise<void> {
-    await msalInstance.loginRedirect({ scopes: [ENTRA_SCOPE] });
+    await msalInstance!.loginRedirect({ scopes: [entraScope] });
 }
 
 export async function logout(): Promise<void> {
     const account = getAccount();
-    await msalInstance.logoutRedirect({ account: account ?? undefined });
+    await msalInstance!.logoutRedirect({ account: account ?? undefined });
 }
 
 // Returns a valid access token, refreshing silently if needed.
@@ -57,16 +66,16 @@ export async function getToken(): Promise<string> {
     if (!account) throw new Error('Not authenticated');
 
     try {
-        const result = await msalInstance.acquireTokenSilent({
-            scopes: [ENTRA_SCOPE],
+        const result = await msalInstance!.acquireTokenSilent({
+            scopes: [entraScope],
             account,
         });
         return result.accessToken;
     } catch (e) {
         if (e instanceof InteractionRequiredAuthError) {
             // Silent renewal failed — redirect to interactive login
-            await msalInstance.acquireTokenRedirect({
-                scopes: [ENTRA_SCOPE],
+            await msalInstance!.acquireTokenRedirect({
+                scopes: [entraScope],
                 account,
             });
             // acquireTokenRedirect navigates away; this line is never reached
