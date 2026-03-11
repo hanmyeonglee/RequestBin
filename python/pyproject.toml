@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reqbin"
+version = "1.0.0"
+description = "Python client library for RequestBin++"
+requires-python = ">=3.10"
+dependencies = [
+    "msal>=1.30",
+    "requests>=2.30",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["reqbin*"]
