@@ -11,4 +11,4 @@ WORKDIR /api
 COPY . .
 
 WORKDIR /api/requestbin
-CMD ["sbt", "compile", "run"]
+CMD ["sbt", "run"]

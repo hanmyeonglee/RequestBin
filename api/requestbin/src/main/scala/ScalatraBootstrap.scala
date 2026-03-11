@@ -10,6 +10,7 @@ import application.{BinCreator, BinCleaner, RequestCollector, RequestReader}
 import infrastructure.shared.SystemClock
 import domain.policy.{BinPolicy, CorsPolicy, RequestPolicy, SchedulerPolicy, AuthPolicy}
 import infrastructure.generator.BinIdGenerator
+import config.FrontendConfig
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder
 import com.nimbusds.jose.proc.SecurityContext
 import java.net.URI
@@ -33,6 +34,7 @@ class ScalatraBootstrap extends LifeCycle {
         )
             .build()
         val tokenValidator = new EntraTokenValidator(jwkSource, Env.ENTRA_TENANT_ID, Env.ENTRA_CLIENT_ID)
+        val frontendConfig = FrontendConfig.fromEnv()
 
         context.mount(new RequestBinServlet(
             new RequestCollector(
@@ -47,7 +49,8 @@ class ScalatraBootstrap extends LifeCycle {
             new BinCreator(txManager, binDatabase, systemClock, binIdGenerator),
             new RequestReader(txManager, binDatabase, capturedRequestDatabase),
             tokenValidator,
-            authPolicy
+            authPolicy,
+            frontendConfig
         ), "/*")
 
         DBs.setupAll()

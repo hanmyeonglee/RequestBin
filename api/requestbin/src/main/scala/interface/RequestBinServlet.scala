@@ -5,6 +5,7 @@ import io.circe.syntax._
 import org.slf4j.LoggerFactory
 
 import application.{BinCreator, RequestCollector, RequestReader}
+import config.FrontendConfig
 import domain.auth.TokenValidator
 import domain.entity.{Body, CapturedRequest, Headers, Query}
 import domain.policy.CorsPolicy
@@ -38,6 +39,14 @@ private given Encoder[CapturedRequest] = Encoder.instance { r =>
     )
 }
 
+private given Encoder[FrontendConfig] = Encoder.instance { c =>
+    Json.obj(
+        "tenantId"      -> c.tenantId.asJson,
+        "clientId"      -> c.clientId.asJson,
+        "scope"         -> c.scope.asJson
+    )
+}
+
 class RequestBinServlet(
     collector: RequestCollector,
     corsPolicy: CorsPolicy,
@@ -45,7 +54,8 @@ class RequestBinServlet(
     binCreator: BinCreator,
     requestReader: RequestReader,
     tokenValidator: TokenValidator,
-    authPolicy: AuthPolicy
+    authPolicy: AuthPolicy,
+    frontendConfig: FrontendConfig
 ) extends ScalatraServlet {
     private val logger = LoggerFactory.getLogger(this.getClass)
     private val baseDomainParts = requestPolicy.baseDomain.split('.').toList
@@ -58,6 +68,8 @@ class RequestBinServlet(
 
     private val CONTENT_TYPE_HTML = Map("Content-Type" -> "text/html; charset=UTF-8")
     private val CONTENT_TYPE_JSON = Map("Content-Type" -> "application/json; charset=UTF-8")
+
+    private val CONFIG_JSON = frontendConfig.asJson.noSpaces
 
     error {
         case e: Throwable =>
@@ -114,6 +126,11 @@ class RequestBinServlet(
 
     options("/*") {
         halt(200)
+    }
+
+    get("/config") {
+        contentType = "application/json"
+        CONFIG_JSON
     }
 
     get("/bin/create") {

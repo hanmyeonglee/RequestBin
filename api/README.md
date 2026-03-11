@@ -111,6 +111,18 @@ Response is a JSON array of `RequestInfo`.
 |`remoteHost`|string|addr of host who requests to bin|
 |`createdAt`|int|unix seconds|
 
+### 3. Entra Login Config
+
+`GET /config`
+
+#### Response
+
+|field name|type|description|
+|---|---|---|
+|`tenantId`|string|tenant ID|
+|`clientId`|string|client/app ID|
+|`scope`|string|api's scope url|
+
 ### 3. Capture Endpoint (Bin Subdomain)
 
 For `https://<binId>.<REQUESTBIN_BASE_DOMAIN>`, any request path/method is treated as capture target.
