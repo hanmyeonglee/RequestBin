@@ -56,7 +56,7 @@ export class MainPage extends LitElement {
                         <button
                             @click=${() => { void login(); }}
                             class="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-colors cursor-pointer"
-                        >Login with Microsoft</button>
+                        >Login with <img src="/microsoft-logo.svg" alt="Microsoft logo" class="inline-block h-4.5 ml-2 -translate-y-px"/></button>
                     </div>
                 </div>
             `;

@@ -12,6 +12,7 @@
     "@azure/msal-browser": "^5.4.0",
     "@tailwindcss/vite": "^4.2.1",
     "lit": "^3.3.1",
+    "serve": "^14.2.6",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
