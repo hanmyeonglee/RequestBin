@@ -12,8 +12,11 @@ export async function createBin(): Promise<string> {
         headers: await authHeaders(),
     });
     if (!res.ok) throw new Error(`Create bin failed: ${res.status}`);
-    const data = await res.json() as { binId: string };
-    return data.binId;
+    const { binId } = await res.json() as { binId: string };
+    if (
+        !binId || !/^[a-zA-Z0-9_-]+$/.test(binId)
+    ) throw new Error(`Invalid binId: ${binId}`);
+    return binId;
 }
 
 export async function readRequests(binId: string): Promise<RequestInfo[]> {
