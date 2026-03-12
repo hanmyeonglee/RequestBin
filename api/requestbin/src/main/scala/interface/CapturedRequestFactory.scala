@@ -14,7 +14,7 @@ object CapturedRequestFactory {
         "X-Forwarded-For",
         "X-Forwarded-Proto",
         "X-Forwarded-Host"
-    )
+    ).map(_.toLowerCase)
 
     // createdAt is set by the application layer (RequestCollector) at persist time
     def fromHttpRequest(request: HttpServletRequest, limit: Long): Option[CapturedRequest] = {
@@ -32,7 +32,7 @@ object CapturedRequestFactory {
                 headers    = Headers(
                                 request.getHeaderNames
                                         .asIterator().asScala
-                                        .filter(name => !exceptedHeaders.contains(name))
+                                        .filter(name => !exceptedHeaders.contains(name.toLowerCase))
                                         .map(name => (name, request.getHeader(name)))
                                         .toMap
                             ),

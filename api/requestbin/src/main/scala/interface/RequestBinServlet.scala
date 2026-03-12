@@ -96,7 +96,12 @@ class RequestBinServlet(
                 CapturedRequestFactory.fromHttpRequest(request, requestPolicy.maxContentLength) match {
                     case Some(capturedRequest) => 
                         collector.collect(binId, capturedRequest) match {
-                            case true => halt(200, Option(request.getHeader("X-Real-IP")).getOrElse(request.getRemoteAddr))
+                            case true => halt(
+                                200,
+                                Option(request.getHeader("X-Real-IP"))
+                                    .orElse(Option(request.getRemoteAddr))
+                                    .getOrElse("UNKNOWN")
+                            )
                             case false => halt(404, NOT_FOUND_404, CONTENT_TYPE_HTML)
                         }
                     case None => halt(400, BAD_REQUEST_400, CONTENT_TYPE_HTML)
