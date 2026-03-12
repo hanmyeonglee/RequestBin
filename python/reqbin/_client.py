@@ -10,6 +10,7 @@ from ._config import ServerConfig, bin_url_for, load_server_config
 
 @dataclass(frozen=True)
 class RequestInfo:
+    id: int
     method: str
     path: str
     query: dict[str, list[str]]
@@ -21,6 +22,7 @@ class RequestInfo:
 
 def _parse_request_info(data: dict) -> RequestInfo:
     return RequestInfo(
+        id=data["id"],
         method=data["method"],
         path=data["path"],
         query=data["query"],

@@ -29,6 +29,7 @@ private given Encoder[Headers] =
 
 private given Encoder[CapturedRequest] = Encoder.instance { r =>
     Json.obj(
+        "id"         -> r.id.map(Json.fromLong).getOrElse(Json.Null),
         "method"     -> r.method.asJson,
         "path"       -> r.path.asJson,
         "query"      -> r.query.asJson,

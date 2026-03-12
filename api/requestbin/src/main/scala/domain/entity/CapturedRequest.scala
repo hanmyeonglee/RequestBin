@@ -3,6 +3,7 @@ package domain.entity
 import java.time.Instant
 
 final case class CapturedRequest(
+    val id: Option[Long],
     val method: String,
     val path: String,
     val query: Query,

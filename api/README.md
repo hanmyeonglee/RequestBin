@@ -103,6 +103,7 @@ Response is a JSON array of `RequestInfo`.
 
 |field name|type|description|
 |---|---|---|
+|`id`|number|Unique request ID|
 |`method`|string|HTTP Method|
 |`path`|string|URL path|
 |`query`|map<string, string[]>|URL query map. Each key maps to list of values.|

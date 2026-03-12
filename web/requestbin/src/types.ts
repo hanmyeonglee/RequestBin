@@ -1,4 +1,5 @@
 export interface RequestInfo {
+    id: number;
     method: string;
     path: string;
     query: Record<string, string[]>;

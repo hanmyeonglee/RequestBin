@@ -17,6 +17,7 @@ class RequestReaderSuite extends FunSuite {
     private val testBin = Bin(binId, Instant.EPOCH)
 
     private def makeRequest(i: Int) = CapturedRequest(
+        id         = None,
         method     = "GET",
         path       = s"/path$i",
         query      = Query(Map.empty),

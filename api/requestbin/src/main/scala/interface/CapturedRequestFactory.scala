@@ -26,6 +26,7 @@ object CapturedRequestFactory {
                 case None    => Query(Map.empty)
             }
             Some(CapturedRequest(
+                id         = None,
                 method     = request.getMethod,
                 path       = request.getRequestURI,
                 query      = query,

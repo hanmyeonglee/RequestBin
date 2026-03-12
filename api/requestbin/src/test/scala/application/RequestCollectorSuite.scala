@@ -24,6 +24,7 @@ class RequestCollectorSuite extends FunSuite {
     private val policy = BinPolicy(ttl)
 
     private val testRequest = CapturedRequest(
+        id         = None,
         method     = "POST",
         path       = "/",
         query      = Query(Map.empty),

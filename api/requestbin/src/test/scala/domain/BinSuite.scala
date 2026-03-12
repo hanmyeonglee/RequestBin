@@ -10,6 +10,7 @@ class BinSuite extends FunSuite {
     private val ttl = Duration.ofSeconds(200L)
 
     private val testRequest = CapturedRequest(
+        id         = None,
         method     = "GET",
         path       = "/",
         query      = Query(Map.empty),

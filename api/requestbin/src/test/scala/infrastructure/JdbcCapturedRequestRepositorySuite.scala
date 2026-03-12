@@ -17,6 +17,7 @@ class JdbcCapturedRequestRepositorySuite extends FunSuite {
     private val testBin = Bin("test-bin", Instant.ofEpochSecond(1000L))
 
     private val baseRequest = CapturedRequest(
+        id         = None,
         method     = "POST",
         path       = "/api/test",
         query      = Query(Map("key" -> List("value"))),

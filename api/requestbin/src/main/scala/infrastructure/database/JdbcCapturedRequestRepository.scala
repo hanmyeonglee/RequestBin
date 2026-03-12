@@ -31,13 +31,14 @@ class JdbcCapturedRequestRepository extends CapturedRequestRepository with JdbcR
     def read(bin: Bin, num: Int)(implicit ctx: TxContext): Seq[CapturedRequest] = {
         implicit val session: DBSession = dbSession
         sql"""
-            SELECT method, path, query, headers, body, remoteHost, createdAt
+            SELECT id, method, path, query, headers, body, remoteHost, createdAt
             FROM captured_request
             WHERE binId = ${bin.binId}
             ORDER BY createdAt DESC
             LIMIT ${num}
         """.map { rs =>
             CapturedRequest(
+                id         = Some(rs.long("id")),
                 method     = rs.string("method"),
                 path       = rs.string("path"),
                 query      = Query(

@@ -85,22 +85,18 @@ export class BinViewer extends LitElement {
             const fresh = await readRequests(this.binId);
 
             // Skip state update if nothing has changed (suppress re-render)
-            const newestOf = (list: RequestInfo[]) =>
-                list.length === 0 ? 0 : Math.max(...list.map(r => r.createdAt));
+            const latestId = (list: RequestInfo[]) =>
+                list.length === 0 ? 0 : Math.max(...list.map(r => r.id));
             const unchanged =
                 fresh.length === this.requests.length &&
-                newestOf(fresh) === newestOf(this.requests);
+                latestId(fresh) === latestId(this.requests);
             if (unchanged) return;
 
             // Re-match selected item into the fresh array so === comparison keeps working
             const prev = this.selected;
             this.requests = fresh;
             this.selected = prev
-                ? (fresh.find(r =>
-                    r.createdAt === prev.createdAt &&
-                    r.method === prev.method &&
-                    r.path === prev.path
-                  ) ?? null)
+                ? (fresh.find(r => r.id === prev.id) ?? null)
                 : null;
         } catch (e) {
             this.error = e instanceof Error ? e.message : 'Unknown error';

@@ -82,6 +82,7 @@ Next API call will require interactive login.
 
 |Field|Type|Description|
 |---|---|---|
+|`id`|`int`|Unique request ID|
 |`method`|`str`|HTTP method|
 |`path`|`str`|URL path|
 |`query`|`dict[str, list[str]]`|Query string parameters|
