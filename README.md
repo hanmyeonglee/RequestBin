@@ -12,6 +12,6 @@ This program is for code-level checkable HTTP Request for PLUS Member.
 - [x] WebSite to show Request using Lit
   - [x] User Login
   - [x] Periodical Request Check
-- [ ] Python Library to handle Request in code level
-  - [ ] User Login
-  - [ ] Code API
+- [x] Python Library to handle Request in code level
+  - [x] User Login
+  - [x] Code API
