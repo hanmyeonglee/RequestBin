@@ -1,5 +1,7 @@
 import base64
 import json
+import os
+import stat
 from pathlib import Path
 
 import msal
@@ -70,6 +72,7 @@ class TokenManager:
         if self._cache.has_state_changed:
             _CACHE_DIR.mkdir(parents=True, exist_ok=True)
             _CACHE_FILE.write_text(self._cache.serialize(), encoding="utf-8")
+            os.chmod(_CACHE_FILE, stat.S_IRUSR | stat.S_IWUSR)
 
     def _clear_cache(self) -> None:
         """Remove all accounts from cache and delete the cache file."""

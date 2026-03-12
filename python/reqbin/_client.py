@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from urllib.parse import unquote
+from base64 import b64decode
 
 import requests
 
@@ -23,7 +25,7 @@ def _parse_request_info(data: dict) -> RequestInfo:
         path=data["path"],
         query=data["query"],
         headers=data["headers"],
-        body=data["body"],
+        body=b64decode(data["body"]),
         remote_host=data["remoteHost"],
         created_at=data["createdAt"],
     )
@@ -58,7 +60,7 @@ class RequestBin:
             timeout=10,
         )
         resp.raise_for_status()
-        self.bin_id = resp.json()["binId"]
+        self.bin_id = unquote(resp.json()["binId"])
         return self.bin_id
 
     def read(self, num: int) -> list[RequestInfo]:
