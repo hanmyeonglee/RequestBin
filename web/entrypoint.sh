@@ -9,4 +9,9 @@ window.__config__ = {
 };
 EOF
 
+# Get API_URL for CSP connect-src
+API_URL="${REQUESTBIN_API_URL:-http://localhost}"
+
+sed -i "s|PLACEHOLDER_API_URL|${API_URL}|g" /app/dist/serve.json
+
 exec npx serve -l 80

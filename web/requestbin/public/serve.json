@@ -1,0 +1,13 @@
+{
+    "headers": [
+        {
+            "source": "index.html",
+            "headers": [
+                {
+                    "key": "Content-Security-Policy",
+                    "value": "default-src 'self'; connect-src 'self' PLACEHOLDER_API_URL https://login.microsoft.com https://graph.microsoft.com https://*.microsoftonline.com;; frame-src 'none';"
+                }
+            ]
+        }
+    ]
+}
